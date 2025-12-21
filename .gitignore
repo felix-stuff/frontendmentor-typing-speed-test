@@ -3,6 +3,7 @@
 *.fig
 *.xd
 /design
+/figma
 
 # Dependencies
 /node_modules
