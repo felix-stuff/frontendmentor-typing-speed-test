@@ -13,9 +13,6 @@ yarn.debug.log*
 yarn.error.log*
 npm-debug.log*
 
-# Tailwind build output
-public/output.css
-
 # Environment and secrets
 .env
 .env.local
@@ -27,6 +24,7 @@ public/output.css
 /coverage
 
 # Production
+public/output.css
 /build
 /dist
 /.next

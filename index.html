@@ -1,56 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="public/assets/images/favicon-32x32.png" />
+    <title>Typing Speed Test</title>
+    <link rel="stylesheet" href="public/output.css" />
+    <script src="src/js/main.js" defer></script>
+  </head>
+  <body class="p-8">
+    <header class="my-8">
+      <img src="/public/assets/images/logo-small.svg" alt="Typing Speed Test" />
+      <span>
+        <img src="/public/assets/images/icon-personal-best.svg" alt="Typing Speed Test" />
+        Personal best:
+        <span id="personal-best">92</span>
+        WPM
+      </span>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="public/assets/images/favicon-32x32.png">
-  
-  <title>Frontend Mentor | Typing Speed Test</title>
+      <span>
+        WPM:
+        <span id="words-per-minute">0</span>
+      </span>
+      <span>
+        Accuracy:
+        <span id="accuracy">100%</span>
+      </span>
+      <span>
+        Time:
+        <span id="time">0:60</span>
+      </span>
 
-  <link rel="stylesheet" href="public/output.css">
-  <script src="src/js/main.js" defer></script>
-</head>
-<body>
-<main>
+      <button type="button">Difficulty:</button>
+      <fieldset id="difficulty">
+        <label for="easy">
+          <input type="radio" value="easy" id="easy" name="difficulty" />
+          Easy
+        </label>
+        <label for="medium">
+          <input type="radio" checked value="medium" id="medium" name="difficulty" />
+          Medium
+        </label>
+        <label for="hard">
+          <input type="radio" value="hard" id="hard" name="difficulty" />
+          Hard
+        </label>
+      </fieldset>
 
-  Personal best: <!-- PB --> WPM
+      <button type="button">Mode:</button>
+      <fieldset id="mode">
+        <label for="timed-mode">
+          <input type="radio" checked value="timed" id="timed-mode" name="mode" />
+          Timed (60s)
+        </label>
+        <label for="passage-mode">
+          <input type="radio" value="passage" id="passage-mode" name="mode" />
+          Passage
+        </label>
+      </fieldset>
+    </header>
 
-  WPM: <!-- WPM -->
-  Accuracy: <!-- Accuracy -->
-  Time: <!-- Time -->
+    <main>
+      <section id="passage" class="text-2xl cursor-pointer"></section>
 
-  Difficulty:
-  Easy
-  Medium
-  Hard
+      <div class="my-8">
+        <label for="user-input">Your text</label>
+        <input type="text" id="user-input" class="sr-only" />
+        <p id="output" class="text-2xl text-slate-700"></p>
+      </div>
 
-  Mode:
-  Timed (60s)
-  Passage
+      <button
+        type="button"
+        id="startButton"
+        class="border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+      >
+        Start Typing Test
+      </button>
+      <p>Or click the text and start typing</p>
 
-  <!-- Passage -->
+      <div style="display: none">
+        Test Complete! Solid run. Keep pushing to beat your high score. WPM:
+        <!-- WPM -->
+        Accuracy:
+        <!-- Accuracy -->
+        Characters:
+        <!-- Correct/Incorrect -->
 
-  Start Typing Test
-  Or click the text and start typing
-
-  <!-- Test Complete Start -->
-
-  Test Complete!
-  Solid run. Keep pushing to beat your high score.
-
-  WPM: <!-- WPM -->
-  Accuracy: <!-- Accuracy -->
-  Characters: <!-- Correct/Incorrect -->
-
-  Go Again
-  
-  <!-- Test Complete End -->
-</main>
-
-  <div class="attribution">
-    Challenge by <a href="https://www.frontendmentor.io?ref=challenge">Frontend Mentor</a>. 
-    Coded by <a href="#">Your Name Here</a>.
-  </div>
-</body>
+        <button type="button">Go Again</button>
+      </div>
+    </main>
+  </body>
 </html>
