@@ -17,6 +17,8 @@ const game = {
   difficulty: 'medium',
   time: 0,
   passage: '',
+  wordsPerMinute: 0,
+  results: [],
 };
 
 // DOM selectors
@@ -24,7 +26,9 @@ const userInput = document.getElementById('user-input');
 const output = document.getElementById('output');
 const passage = document.getElementById('passage');
 const startButton = document.getElementById('startButton');
+const resetButton = document.getElementById('resetButton');
 const difficulty = document.getElementById('difficulty');
+const wpm = document.getElementById('words-per-minute');
 const mode = document.getElementById('mode');
 const time = document.getElementById('time');
 const accuracy = document.getElementById('accuracy');
@@ -47,7 +51,7 @@ const populateDom = (text) => {
   passage.innerHTML = '';
   text.split('').forEach((letter) => {
     const span = document.createElement('span');
-    span.innerText = String(letter);
+    span.textContent = String(letter);
     passage.appendChild(span);
   });
 };
@@ -55,10 +59,27 @@ const populateDom = (text) => {
 const startGame = () => {
   userInput.value = '';
   userInput.focus();
-  output.innerText = '';
+  output.textContent = '';
   clearInterval(timerId);
   game.errorCounter = 0;
   startTimer(game.mode[game.selectedMode].direction, game.mode[game.selectedMode].startTime);
+  resetButton.classList.remove('hidden');
+  startButton.classList.add('hidden');
+};
+
+const resetGame = () => {
+  userInput.value = '';
+  output.textContent = '';
+  clearInterval(timerId);
+  game.errorCounter = 0;
+  time.innerHTML = `0:${String(game.mode[game.selectedMode].startTime).padStart(2, '0')}`;
+  game.wordsPerMinute = 0;
+  resetButton.classList.add('hidden');
+  startButton.classList.remove('hidden');
+  game.results = [];
+  game.accuracy = 100;
+  accuracy.textContent = '100%';
+  populateDom(game.passage);
 };
 
 let timerId = null;
@@ -77,9 +98,9 @@ const startTimer = (direction, startTime) => {
     if (game.time > 60) {
       let minutes = Math.floor(game.time / 60);
       let seconds = String(game.time % 60).padStart(2, '0');
-      time.innerText = `${minutes}:${String(seconds).padStart(2, '0')}`;
+      time.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
     } else {
-      time.innerText = `0:${String(game.time).padStart(2, '0')}`;
+      time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
   }, 1000);
 };
@@ -88,33 +109,35 @@ const startTimer = (direction, startTime) => {
 startButton.addEventListener('click', startGame);
 passage.addEventListener('click', startGame);
 
-userInput.addEventListener('input', (e) => {
-  const results = [];
+userInput.addEventListener('input', handleInput);
 
-  // print userInput to page
-  output.innerText = e.target.value;
+function handleInput(e) {
+  const typed = e.target.value;
 
-  // detect state of user input
-  for (let i = 0; i < passage.children.length; i++) {
-    if (userInput.value.length <= i) {
-      results.push('pending');
-    } else if (e.target.value[i] === passage.children[i].textContent) {
-      results.push('correct');
-    } else {
-      results.push('wrong');
-      game.errorCounter++;
-    }
+  output.textContent = typed;
+
+  updateResults(typed);
+  updateAccuracy();
+  updateHighlighting();
+}
+
+function updateResults(typed) {
+  for (let i = 0; i < game.passage.length; i++) {
+    if (typed[i] === undefined) game.results[i] = 'pending';
+    else if (typed[i] === game.passage[i]) game.results[i] = 'correct';
+    else game.results[i] = 'wrong';
   }
+}
 
-  const correct = results.filter((result) => result === 'correct').length;
+function updateAccuracy() {
+  const correctChars = game.results.filter((result) => result === 'correct').length;
+  game.accuracy = (correctChars / game.results.length) * 100;
+  accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
+}
 
-  console.log('CORRECT CHARS:', correct, '/', results.length);
-  game.accuracy = (correct / results.length) * 100;
-  accuracy.innerText = `${game.accuracy.toFixed(2)}%`;
-  console.log(game.errorCounter);
-
-  // output results to the DOM
-  results.forEach((result, index) => {
+// output results to the DOM
+function updateHighlighting() {
+  game.results.forEach((result, index) => {
     passage.children[index].classList.remove('text-green-700', 'text-red-700', 'text-slate-300');
 
     if (result === 'correct') {
@@ -125,16 +148,22 @@ userInput.addEventListener('input', (e) => {
       passage.children[index].classList.add('text-red-700');
     }
   });
-});
+}
 
 // select difficulty
 difficulty.addEventListener('change', (e) => {
   loadPassage(e.target.value);
+  resetGame();
 });
 
 // select mode
 mode.addEventListener('change', (e) => {
   game.selectedMode = e.target.value;
+  resetGame();
+});
+
+resetButton.addEventListener('click', (e) => {
+  resetGame();
 });
 
 // show passage with initially checked difficulty
