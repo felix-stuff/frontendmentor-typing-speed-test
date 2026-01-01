@@ -192,7 +192,11 @@ function updateAccuracy() {
 // output results to the DOM
 function updateHighlighting() {
   game.results.forEach((result, index) => {
-    passage.children[index].classList.remove('text-green-700', 'text-red-700', 'text-slate-300');
+    passage.children[index].classList.remove('text-green-700', 'text-red-700', 'text-slate-300', 'bg-slate-700');
+
+    let currentChar = game.results.indexOf('pending');
+
+    passage.children[currentChar].classList.add('bg-slate-700');
 
     if (result === 'correct') {
       passage.children[index].classList.add('text-green-700');
