@@ -17,8 +17,11 @@ const game = {
   difficulty: 'medium',
   time: 0,
   passage: '',
+  words: 0,
   wordsPerMinute: 0,
   results: [],
+  highScore: 0,
+  typed: 0,
 };
 
 // DOM selectors
@@ -27,11 +30,24 @@ const output = document.getElementById('output');
 const passage = document.getElementById('passage');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
+const restartButton = document.getElementById('restartButton');
 const difficulty = document.getElementById('difficulty');
 const wpm = document.getElementById('words-per-minute');
+const finalWpm = document.getElementById('final-words-per-minute');
 const mode = document.getElementById('mode');
 const time = document.getElementById('time');
 const accuracy = document.getElementById('accuracy');
+const finalAccuracy = document.getElementById('final-accuracy');
+const highScore = document.getElementById('high-score');
+const testComplete = document.getElementById('test-complete');
+const finalCorrect = document.getElementById('final-correct');
+const finalErrors = document.getElementById('final-errors');
+const gameContainer = document.getElementById('game-container');
+
+// global variables
+const blockedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete'];
+let timerId = null;
+const timeOut = 120;
 
 // fetch passge async
 const loadPassage = async (difficulty) => {
@@ -43,6 +59,7 @@ const loadPassage = async (difficulty) => {
   const items = data[difficulty].length;
   const randomIndex = Math.floor(Math.random() * items);
   game.passage = data[difficulty][randomIndex].text;
+  console.log(game.passage.split(' ').length);
   populateDom(game.passage);
 };
 
@@ -65,6 +82,8 @@ const startGame = () => {
   startTimer(game.mode[game.selectedMode].direction, game.mode[game.selectedMode].startTime);
   resetButton.classList.remove('hidden');
   startButton.classList.add('hidden');
+  userInput.addEventListener('input', handleInput);
+  game.wordsPerMinute = 0;
 };
 
 const resetGame = () => {
@@ -80,10 +99,10 @@ const resetGame = () => {
   game.accuracy = 100;
   accuracy.textContent = '100%';
   populateDom(game.passage);
+  testComplete.classList.add('hidden');
+  gameContainer.classList.remove('hidden');
+  game.wordsPerMinute = 0;
 };
-
-let timerId = null;
-let timeOut = 120;
 
 const startTimer = (direction, startTime) => {
   game.time = startTime;
@@ -92,8 +111,14 @@ const startTimer = (direction, startTime) => {
     game.time += direction;
 
     // stop timer depending on game mode
-    if (direction > 0 && game.time >= timeOut) clearInterval(timerId);
-    if (direction < 0 && game.time <= 0) clearInterval(timerId);
+    if (direction > 0 && game.time >= timeOut) {
+      clearInterval(timerId);
+      endGame();
+    }
+    if (direction < 0 && game.time <= 0) {
+      clearInterval(timerId);
+      endGame();
+    }
 
     if (game.time > 60) {
       let minutes = Math.floor(game.time / 60);
@@ -109,7 +134,7 @@ const startTimer = (direction, startTime) => {
 startButton.addEventListener('click', startGame);
 passage.addEventListener('click', startGame);
 
-userInput.addEventListener('input', handleInput);
+userInput.addEventListener('keydown', handleKeydown);
 
 function handleInput(e) {
   const typed = e.target.value;
@@ -119,19 +144,48 @@ function handleInput(e) {
   updateResults(typed);
   updateAccuracy();
   updateHighlighting();
+
+  if (e.target.value.split(' ')) {
+    game.words = e.target.value.split(' ').length - 1;
+  }
+
+  calculateWordsPerMinute();
+
+  // end game if all chars are correct
+  const correctChars = game.results.filter((result) => result === 'correct').length;
+  if (correctChars === game.passage.length) {
+    endGame();
+  }
 }
 
 function updateResults(typed) {
   for (let i = 0; i < game.passage.length; i++) {
-    if (typed[i] === undefined) game.results[i] = 'pending';
-    else if (typed[i] === game.passage[i]) game.results[i] = 'correct';
-    else game.results[i] = 'wrong';
+    const oldState = game.results[i];
+    let newState;
+
+    if (typed[i] === undefined) {
+      newState = 'pending';
+    } else if (typed[i] === game.passage[i]) {
+      newState = 'correct';
+    } else {
+      newState = 'wrong';
+    }
+
+    if (newState === 'wrong' || oldState !== 'wrong') {
+      game.errorCounter++;
+    }
+
+    game.results[i] = newState;
   }
 }
 
 function updateAccuracy() {
-  const correctChars = game.results.filter((result) => result === 'correct').length;
-  game.accuracy = (correctChars / game.results.length) * 100;
+  const correct = game.results.filter((r) => r === 'correct').length;
+  const wrong = game.results.filter((r) => r === 'wrong').length;
+  const total = correct + wrong;
+
+  // prevent division by zero
+  game.accuracy = total === 0 ? 100 : (correct / total) * 100;
   accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 }
 
@@ -150,6 +204,42 @@ function updateHighlighting() {
   });
 }
 
+function calculateWordsPerMinute() {
+  if (game.mode === 'passage') {
+    game.wordsPerMinute = Math.round(game.words / 60);
+  } else {
+    game.wordsPerMinute = game.words;
+  }
+
+  wpm.textContent = game.wordsPerMinute;
+}
+
+function handleKeydown(e) {
+  if (blockedKeys.includes(e.key)) {
+    e.preventDefault();
+  }
+
+  // count all regular typed chars
+  if (e.key.length === 1) {
+    game.typed++;
+  }
+}
+
+function endGame() {
+  clearInterval(timerId);
+  testComplete.classList.remove('hidden');
+  finalWpm.textContent = game.wordsPerMinute;
+  finalAccuracy.textContent = `${game.accuracy.toFixed(2)}%`;
+
+  const correctChars = game.results.filter((result) => result === 'correct').length;
+  const wrongChars = game.results.filter((result) => result === 'wrong').length;
+  finalCorrect.textContent = correctChars;
+  finalErrors.textContent = wrongChars;
+  userInput.removeEventListener('input', handleInput);
+
+  gameContainer.classList.add('hidden');
+}
+
 // select difficulty
 difficulty.addEventListener('change', (e) => {
   loadPassage(e.target.value);
@@ -163,6 +253,10 @@ mode.addEventListener('change', (e) => {
 });
 
 resetButton.addEventListener('click', (e) => {
+  resetGame();
+});
+
+restartButton.addEventListener('click', (e) => {
   resetGame();
 });
 

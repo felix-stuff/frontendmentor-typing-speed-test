@@ -14,7 +14,7 @@
       <span>
         <img src="/public/assets/images/icon-personal-best.svg" alt="Typing Speed Test" />
         Personal best:
-        <span id="personal-best">92</span>
+        <span id="high-score">92</span>
         WPM
       </span>
 
@@ -61,41 +61,62 @@
     </header>
 
     <main>
-      <section id="passage" class="text-2xl cursor-pointer"></section>
+      <div id="game-container">
+        <section id="passage" class="text-2xl cursor-pointer"></section>
 
-      <div class="my-8">
-        <label for="user-input">Your text</label>
-        <input type="text" id="user-input" class="sr-only" />
-        <p id="output" class="text-2xl text-slate-700"></p>
+        <div class="my-8">
+          <label for="user-input">Your text</label>
+          <input type="text" id="user-input" class="sr-only" />
+          <p id="output" class="text-2xl text-slate-700"></p>
+        </div>
+
+        <button
+          type="button"
+          id="startButton"
+          class="border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+        >
+          Start Typing Test
+        </button>
+        <p>Or click the text and start typing</p>
+
+        <button
+          type="button"
+          id="resetButton"
+          class="hidden border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+        >
+          Restart Test
+        </button>
       </div>
 
-      <button
-        type="button"
-        id="startButton"
-        class="border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
-      >
-        Start Typing Test
-      </button>
-      <p>Or click the text and start typing</p>
+      <section id="test-complete" class="hidden">
+        <h1>Test Complete!</h1>
+        <p>Solid run. Keep pushing to beat your high score.</p>
 
-      <button
-        type="button"
-        id="resetButton"
-        class="hidden border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
-      >
-        Restart Test
-      </button>
+        <span>
+          WPM:
+          <span id="final-words-per-minute">0</span>
+        </span>
 
-      <div style="display: none">
-        Test Complete! Solid run. Keep pushing to beat your high score. WPM:
-        <!-- WPM -->
-        Accuracy:
-        <!-- Accuracy -->
-        Characters:
-        <!-- Correct/Incorrect -->
+        <span>
+          Accuracy:
+          <span id="final-accuracy">100%</span>
+        </span>
 
-        <button type="button">Go Again</button>
-      </div>
+        <span>
+          Characters:
+          <span id="final-correct"></span>
+          /
+          <span id="final-errors"></span>
+        </span>
+
+        <button
+          type="button"
+          id="restartButton"
+          class="border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+        >
+          Go Again
+        </button>
+      </section>
     </main>
   </body>
 </html>
