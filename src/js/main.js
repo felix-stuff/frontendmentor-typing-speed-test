@@ -53,7 +53,7 @@ const timeOut = 120;
 
 // fetch passge async
 const loadPassage = async (difficulty) => {
-  const response = await fetch('/../../data.json');
+  const response = await fetch('gidata.json');
   if (!response.ok) throw new Error('Fetch failed');
 
   const data = await response.json();
