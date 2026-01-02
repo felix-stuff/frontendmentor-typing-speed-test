@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="bg-neutral-900 font-display text-white">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,86 +8,148 @@
     <link rel="stylesheet" href="public/output.css" />
     <script src="src/js/main.js" defer></script>
   </head>
-  <body class="p-8">
-    <header class="my-8">
-      <img src="/public/assets/images/logo-small.svg" alt="Typing Speed Test" />
-      <span>
-        <img src="/public/assets/images/icon-personal-best.svg" alt="Typing Speed Test" />
-        Personal best:
-        <span id="personal-best">92</span>
-        WPM
-      </span>
+  <body class="mx-auto max-w-7xl p-4 md:p-8">
+    <header class="mb-8 border-b border-neutral-700 pb-4">
+      <div class="mb-8 flex items-center justify-between">
+        <img src="/public/assets/images/logo-small.svg" alt="Typing Speed Test" />
+        <span class="flex items-center gap-x-2.5 text-neutral-400">
+          <img src="/public/assets/images/icon-personal-best.svg" alt="" class="h-4" />
+          <span>
+            Personal best:
+            <span id="high-score" class="text-white">92</span>
+          </span>
+        </span>
+      </div>
 
-      <span>
-        WPM:
-        <span id="words-per-minute">0</span>
-      </span>
-      <span>
-        Accuracy:
-        <span id="accuracy">100%</span>
-      </span>
-      <span>
-        Time:
-        <span id="time">0:60</span>
-      </span>
+      <div class="mb-5 grid grid-flow-col grid-cols-3">
+        <span
+          class="grid gap-2 border-r border-neutral-400 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400"
+        >
+          WPM:
+          <strong id="words-per-minute" class="text-2xl leading-none text-white">0</strong>
+        </span>
+        <span
+          class="grid gap-2 border-r border-neutral-400 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400"
+        >
+          Accuracy:
+          <strong id="accuracy" class="text-2xl leading-none text-red-500">100%</strong>
+        </span>
+        <span class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400">
+          Time:
+          <strong id="time" class="text-2xl leading-none text-yellow-400">0:60</strong>
+        </span>
+      </div>
 
-      <button type="button">Difficulty:</button>
-      <fieldset id="difficulty">
-        <label for="easy">
-          <input type="radio" value="easy" id="easy" name="difficulty" />
-          Easy
-        </label>
-        <label for="medium">
-          <input type="radio" checked value="medium" id="medium" name="difficulty" />
-          Medium
-        </label>
-        <label for="hard">
-          <input type="radio" value="hard" id="hard" name="difficulty" />
-          Hard
-        </label>
-      </fieldset>
+      <div class="grid grid-cols-2 gap-x-2.5">
+        <button
+          type="button"
+          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
+        >
+          <span>Difficulty</span>
+          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
+        </button>
+        <fieldset id="difficulty" class="grid hidden">
+          <label for="easy">
+            <input type="radio" value="easy" id="easy" name="difficulty" />
+            Easy
+          </label>
+          <label for="medium">
+            <input type="radio" value="medium" id="medium" name="difficulty" />
+            Medium
+          </label>
+          <label for="hard">
+            <input type="radio" checked value="hard" id="hard" name="difficulty" />
+            Hard
+          </label>
+        </fieldset>
 
-      <button type="button">Mode:</button>
-      <fieldset id="mode">
-        <label for="timed-mode">
-          <input type="radio" checked value="timed" id="timed-mode" name="mode" />
-          Timed (60s)
-        </label>
-        <label for="passage-mode">
-          <input type="radio" value="passage" id="passage-mode" name="mode" />
-          Passage
-        </label>
-      </fieldset>
+        <button
+          type="button"
+          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
+        >
+          <span>Mode</span>
+          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
+        </button>
+        <fieldset id="mode" class="grid hidden">
+          <label for="timed-mode">
+            <input type="radio" checked value="timed" id="timed-mode" name="mode" />
+            Timed (60s)
+          </label>
+          <label for="passage-mode">
+            <input type="radio" value="passage" id="passage-mode" name="mode" />
+            Passage
+          </label>
+        </fieldset>
+      </div>
     </header>
 
     <main>
-      <section id="passage" class="text-2xl cursor-pointer"></section>
+      <div id="game-container" class="relative">
+        <section
+          id="passage"
+          class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] text-neutral-400 opacity-40 blur-[6px]"
+        ></section>
 
-      <div class="my-8">
-        <label for="user-input">Your text</label>
-        <input type="text" id="user-input" class="sr-only" />
-        <p id="output" class="text-2xl text-slate-700"></p>
+        <div>
+          <label for="user-input" class="sr-only">Your typed text</label>
+          <input type="text" id="user-input" class="sr-only" />
+        </div>
+
+        <div
+          id="start-button-container"
+          class="absolute top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] text-center"
+        >
+          <button
+            type="button"
+            id="start-button"
+            class="cursor-pointer rounded-lg bg-blue-600 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 hover:bg-blue-400"
+          >
+            Start Typing Test
+          </button>
+          <p class="mt-5 text-xl leading-[1.2] font-semibold tracking-[-0.3px]">Or click the text and start typing</p>
+        </div>
+
+        <div id="reset-button-container" class="mt-8 hidden border-t border-neutral-700 pt-6">
+          <button
+            type="button"
+            id="reset-button"
+            class="mx-auto flex cursor-pointer gap-x-2.5 rounded-lg bg-neutral-800 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 hover:bg-neutral-700"
+          >
+            Restart Test
+            <img src="public/assets/images/icon-restart.svg" alt="" />
+          </button>
+        </div>
       </div>
 
-      <button
-        type="button"
-        id="startButton"
-        class="border border-slate-500 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
-      >
-        Start Typing Test
-      </button>
-      <p>Or click the text and start typing</p>
+      <section id="test-complete" class="hidden">
+        <h1>Test Complete!</h1>
+        <p>Solid run. Keep pushing to beat your high score.</p>
 
-      <div style="display: none">
-        Test Complete! Solid run. Keep pushing to beat your high score. WPM:
-        <!-- WPM -->
-        Accuracy:
-        <!-- Accuracy -->
-        Characters:
-        <!-- Correct/Incorrect -->
+        <span>
+          WPM:
+          <span id="final-words-per-minute">0</span>
+        </span>
 
-        <button type="button">Go Again</button>
-      </div>
+        <span>
+          Accuracy:
+          <span id="final-accuracy">100%</span>
+        </span>
+
+        <span>
+          Characters:
+          <span id="final-correct"></span>
+          /
+          <span id="final-errors"></span>
+        </span>
+
+        <button
+          type="button"
+          id="restart-button"
+          class="cursor-pointer rounded-lg border border-slate-500 p-2 transition hover:bg-slate-100"
+        >
+          Go Again
+        </button>
+      </section>
     </main>
   </body>
 </html>
