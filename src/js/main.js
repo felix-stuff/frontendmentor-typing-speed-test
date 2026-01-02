@@ -14,7 +14,7 @@ const game = {
     },
   },
   selectedMode: 'timed',
-  difficulty: 'medium',
+  difficulty: 'hard',
   time: 0,
   passage: '',
   words: 0,
@@ -22,15 +22,17 @@ const game = {
   results: [],
   highScore: 0,
   typed: 0,
+  currentChar: 0,
 };
 
 // DOM selectors
 const userInput = document.getElementById('user-input');
-const output = document.getElementById('output');
 const passage = document.getElementById('passage');
-const startButton = document.getElementById('startButton');
-const resetButton = document.getElementById('resetButton');
-const restartButton = document.getElementById('restartButton');
+const startButton = document.getElementById('start-button');
+const startButtonContainer = document.getElementById('start-button-container');
+const resetButton = document.getElementById('reset-button');
+const resetButtonContainer = document.getElementById('reset-button-container');
+const restartButton = document.getElementById('restart-button');
 const difficulty = document.getElementById('difficulty');
 const wpm = document.getElementById('words-per-minute');
 const finalWpm = document.getElementById('final-words-per-minute');
@@ -59,7 +61,6 @@ const loadPassage = async (difficulty) => {
   const items = data[difficulty].length;
   const randomIndex = Math.floor(Math.random() * items);
   game.passage = data[difficulty][randomIndex].text;
-  console.log(game.passage.split(' ').length);
   populateDom(game.passage);
 };
 
@@ -76,25 +77,25 @@ const populateDom = (text) => {
 const startGame = () => {
   userInput.value = '';
   userInput.focus();
-  output.textContent = '';
   clearInterval(timerId);
   game.errorCounter = 0;
   startTimer(game.mode[game.selectedMode].direction, game.mode[game.selectedMode].startTime);
-  resetButton.classList.remove('hidden');
-  startButton.classList.add('hidden');
+  resetButtonContainer.classList.remove('hidden');
+  startButtonContainer.classList.add('hidden');
   userInput.addEventListener('input', handleInput);
   game.wordsPerMinute = 0;
+  passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+  passage.classList.remove('blur-[6px]', 'opacity-40');
 };
 
 const resetGame = () => {
   userInput.value = '';
-  output.textContent = '';
   clearInterval(timerId);
   game.errorCounter = 0;
   time.innerHTML = `0:${String(game.mode[game.selectedMode].startTime).padStart(2, '0')}`;
   game.wordsPerMinute = 0;
-  resetButton.classList.add('hidden');
-  startButton.classList.remove('hidden');
+  resetButtonContainer.classList.add('hidden');
+  startButtonContainer.classList.remove('hidden');
   game.results = [];
   game.accuracy = 100;
   accuracy.textContent = '100%';
@@ -102,6 +103,8 @@ const resetGame = () => {
   testComplete.classList.add('hidden');
   gameContainer.classList.remove('hidden');
   game.wordsPerMinute = 0;
+  passage.classList.add('blur-[6px]', 'opacity-40');
+  loadPassage(game.difficulty);
 };
 
 const startTimer = (direction, startTime) => {
@@ -139,14 +142,12 @@ userInput.addEventListener('keydown', handleKeydown);
 function handleInput(e) {
   const typed = e.target.value;
 
-  output.textContent = typed;
-
   updateResults(typed);
   updateAccuracy();
   updateHighlighting();
 
-  if (e.target.value.split(' ')) {
-    game.words = e.target.value.split(' ').length - 1;
+  if (typed.split(' ')) {
+    game.words = typed.split(' ').length - 1;
   }
 
   calculateWordsPerMinute();
@@ -192,18 +193,27 @@ function updateAccuracy() {
 // output results to the DOM
 function updateHighlighting() {
   game.results.forEach((result, index) => {
-    passage.children[index].classList.remove('text-green-700', 'text-red-700', 'text-slate-300', 'bg-slate-700');
+    passage.children[index].classList.remove(
+      'text-green-500',
+      'text-red-500',
+      'underline',
+      'decoration-3',
+      'text-neutral-400',
+      'bg-white',
+      'opacity-20',
+      'underline-offset-3',
+    );
 
-    let currentChar = game.results.indexOf('pending');
+    game.currentChar = game.results.indexOf('pending');
 
-    passage.children[currentChar].classList.add('bg-slate-700');
+    passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
 
     if (result === 'correct') {
-      passage.children[index].classList.add('text-green-700');
+      passage.children[index].classList.add('text-green-500');
     } else if (result === 'pending') {
-      passage.children[index].classList.add('text-slate-300');
+      passage.children[index].classList.add('text-neutral-400');
     } else {
-      passage.children[index].classList.add('text-red-700');
+      passage.children[index].classList.add('text-red-500', 'underline', 'decoration-3', 'underline-offset-6');
     }
   });
 }
