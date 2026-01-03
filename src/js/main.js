@@ -33,6 +33,7 @@ const startButtonContainer = document.getElementById('start-button-container');
 const resetButton = document.getElementById('reset-button');
 const resetButtonContainer = document.getElementById('reset-button-container');
 const restartButton = document.getElementById('restart-button');
+const difficultyToggle = document.getElementById('difficulty');
 const difficulty = document.getElementById('difficulty');
 const wpm = document.getElementById('words-per-minute');
 const finalWpm = document.getElementById('final-words-per-minute');
@@ -45,6 +46,41 @@ const testComplete = document.getElementById('test-complete');
 const finalCorrect = document.getElementById('final-correct');
 const finalErrors = document.getElementById('final-errors');
 const gameContainer = document.getElementById('game-container');
+
+const toggleButtons = document.querySelectorAll('.toggle-button');
+
+let lastInteraction = 'mouse';
+
+document.addEventListener('pointerdown', (e) => {
+  lastInteraction = 'mouse';
+
+  toggleButtons.forEach((button) => {
+    toggleDropdown(button, e);
+  });
+});
+
+const toggleDropdown = (button, e) => {
+  const dropdown = button.nextElementSibling;
+
+  if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add('hidden');
+  } else {
+    dropdown.classList.remove('hidden');
+  }
+};
+
+document.addEventListener('keydown', (e) => {
+  lastInteraction = 'keyboard';
+
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    toggleButtons.forEach((button) => {
+      toggleDropdown(button, e);
+    });
+  }
+});
+
+document.addEventListener('click', function (e) {});
 
 // global variables
 const blockedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete'];
@@ -256,23 +292,20 @@ function endGame() {
 
 // select difficulty
 difficulty.addEventListener('change', (e) => {
-  loadPassage(e.target.value);
+  game.difficulty = e.target.value;
+  difficulty.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
 // select mode
 mode.addEventListener('change', (e) => {
   game.selectedMode = e.target.value;
+  mode.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
-resetButton.addEventListener('click', (e) => {
-  resetGame();
-});
-
-restartButton.addEventListener('click', (e) => {
-  resetGame();
-});
+resetButton.addEventListener('click', resetGame);
+restartButton.addEventListener('click', resetGame);
 
 // show passage with initially checked difficulty
 const initialDifficulty = Array.from(difficulty.querySelectorAll('input')).filter((i) => i.checked);

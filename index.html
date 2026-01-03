@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="public/output.css" />
     <script src="src/js/main.js" defer></script>
   </head>
-  <body class="mx-auto max-w-7xl p-4 md:p-8">
+  <body class="mx-auto max-w-7xl p-4 select-none md:p-8">
     <header class="mb-8 border-b border-neutral-700 pb-4">
       <div class="mb-8 flex items-center justify-between">
         <img src="/public/assets/images/logo-small.svg" alt="Typing Speed Test" />
@@ -41,45 +41,97 @@
       </div>
 
       <div class="grid grid-cols-2 gap-x-2.5">
-        <button
-          type="button"
-          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
-        >
-          <span>Difficulty</span>
-          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
-        </button>
-        <fieldset id="difficulty" class="grid hidden">
-          <label for="easy">
-            <input type="radio" value="easy" id="easy" name="difficulty" />
-            Easy
-          </label>
-          <label for="medium">
-            <input type="radio" value="medium" id="medium" name="difficulty" />
-            Medium
-          </label>
-          <label for="hard">
-            <input type="radio" checked value="hard" id="hard" name="difficulty" />
-            Hard
-          </label>
-        </fieldset>
+        <div class="relative">
+          <button
+            type="button"
+            class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
+          >
+            <span>Difficulty</span>
+            <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+          </button>
+          <fieldset id="difficulty" class="absolute z-1 mt-[7px] grid hidden w-full rounded-lg bg-neutral-800">
+            <legend class="sr-only">Difficulty</legend>
+            <label for="easy" class="cursor-pointer border-b border-neutral-700 p-2.5 leading-none tracking-[-0.48px]">
+              <input type="radio" value="easy" id="easy" name="difficulty" class="peer block h-0 appearance-none" />
+              <span
+                class="flex items-center gap-x-3 before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400"
+              >
+                Easy
+              </span>
+            </label>
+            <label
+              for="medium"
+              class="cursor-pointer border-b border-neutral-700 p-2.5 leading-none tracking-[-0.48px]"
+            >
+              <input type="radio" value="medium" id="medium" name="difficulty" class="peer block h-0 appearance-none" />
+              <span
+                class="flex items-center gap-x-3 before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400"
+              >
+                Medium
+              </span>
+            </label>
+            <label for="hard" class="p-2.5 leading-none tracking-[-0.48px]">
+              <input
+                type="radio"
+                checked
+                value="hard"
+                id="hard"
+                name="difficulty"
+                class="peer block h-0 appearance-none"
+              />
+              <span
+                class="flex items-center gap-x-3 before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400"
+              >
+                Hard
+              </span>
+            </label>
+          </fieldset>
+        </div>
 
-        <button
-          type="button"
-          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
-        >
-          <span>Mode</span>
-          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
-        </button>
-        <fieldset id="mode" class="grid hidden">
-          <label for="timed-mode">
-            <input type="radio" checked value="timed" id="timed-mode" name="mode" />
-            Timed (60s)
-          </label>
-          <label for="passage-mode">
-            <input type="radio" value="passage" id="passage-mode" name="mode" />
-            Passage
-          </label>
-        </fieldset>
+        <div class="relative">
+          <button
+            type="button"
+            class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
+          >
+            <span>Mode</span>
+            <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+          </button>
+          <fieldset id="mode" class="absolute z-1 mt-[7px] grid hidden w-full rounded-lg bg-neutral-800">
+            <legend class="sr-only">Difficulty</legend>
+            <label
+              for="timed-mode"
+              class="cursor-pointer border-b border-neutral-700 p-2.5 leading-none tracking-[-0.48px]"
+            >
+              <input
+                type="radio"
+                checked
+                value="timed"
+                id="timed-mode"
+                name="mode"
+                class="peer block h-0 appearance-none"
+              />
+              <span
+                class="flex items-center gap-x-3 before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400"
+              >
+                Timed (60s)
+              </span>
+            </label>
+            <label for="passage-mode" class="cursor-pointer p-2.5 leading-none tracking-[-0.48px]">
+              <input
+                type="radio"
+                value="passage"
+                id="passage-mode"
+                name="mode"
+                class="peer block h-0 appearance-none"
+              />
+              <span
+                class="flex items-center gap-x-3 before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400"
+              >
+                Passage
+              </span>
+            </label>
+          </fieldset>
+        </div>
       </div>
     </header>
 
