@@ -1,5 +1,26 @@
-// initial values
-// timer, mode, wpm, accuracy, difficulty
+// DOM selectors
+const userInput = document.getElementById('user-input');
+const passage = document.getElementById('passage');
+const startButton = document.getElementById('start-button');
+const startButtonContainer = document.getElementById('start-button-container');
+const resetButton = document.getElementById('reset-button');
+const resetButtonContainer = document.getElementById('reset-button-container');
+const restartButton = document.getElementById('restart-button');
+const difficultyToggle = document.getElementById('difficulty');
+const difficulty = document.getElementById('difficulty');
+const wpm = document.getElementById('words-per-minute');
+const finalWpm = document.getElementById('final-words-per-minute');
+const mode = document.getElementById('mode');
+const time = document.getElementById('time');
+const accuracy = document.getElementById('accuracy');
+const finalAccuracy = document.getElementById('final-accuracy');
+const highScore = document.getElementById('high-score');
+const testComplete = document.getElementById('test-complete');
+const finalCorrect = document.getElementById('final-correct');
+const finalErrors = document.getElementById('final-errors');
+const gameContainer = document.getElementById('game-container');
+const toggleButtons = document.querySelectorAll('.toggle-button');
+
 const game = {
   errorCounter: 0,
   accuracy: 100,
@@ -24,30 +45,6 @@ const game = {
   typed: 0,
   currentChar: 0,
 };
-
-// DOM selectors
-const userInput = document.getElementById('user-input');
-const passage = document.getElementById('passage');
-const startButton = document.getElementById('start-button');
-const startButtonContainer = document.getElementById('start-button-container');
-const resetButton = document.getElementById('reset-button');
-const resetButtonContainer = document.getElementById('reset-button-container');
-const restartButton = document.getElementById('restart-button');
-const difficultyToggle = document.getElementById('difficulty');
-const difficulty = document.getElementById('difficulty');
-const wpm = document.getElementById('words-per-minute');
-const finalWpm = document.getElementById('final-words-per-minute');
-const mode = document.getElementById('mode');
-const time = document.getElementById('time');
-const accuracy = document.getElementById('accuracy');
-const finalAccuracy = document.getElementById('final-accuracy');
-const highScore = document.getElementById('high-score');
-const testComplete = document.getElementById('test-complete');
-const finalCorrect = document.getElementById('final-correct');
-const finalErrors = document.getElementById('final-errors');
-const gameContainer = document.getElementById('game-container');
-
-const toggleButtons = document.querySelectorAll('.toggle-button');
 
 let lastInteraction = 'mouse';
 
