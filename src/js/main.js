@@ -1,5 +1,27 @@
-// initial values
-// timer, mode, wpm, accuracy, difficulty
+// DOM selectors
+const userInput = document.getElementById('user-input');
+const passage = document.getElementById('passage');
+const startButton = document.getElementById('start-button');
+const startButtonContainer = document.getElementById('start-button-container');
+const resetButton = document.getElementById('reset-button');
+const resetButtonContainer = document.getElementById('reset-button-container');
+const restartButton = document.getElementById('restart-button');
+const difficultyToggle = document.getElementById('difficulty');
+const difficulty = document.getElementById('difficulty');
+const wpm = document.getElementById('words-per-minute');
+const finalWpm = document.getElementById('final-words-per-minute');
+const mode = document.getElementById('mode');
+const time = document.getElementById('time');
+const accuracy = document.getElementById('accuracy');
+const finalAccuracy = document.getElementById('final-accuracy');
+const highScore = document.getElementById('high-score');
+const testComplete = document.getElementById('test-complete');
+const finalCorrect = document.getElementById('final-correct');
+const finalErrors = document.getElementById('final-errors');
+const gameContainer = document.getElementById('game-container');
+const toggleButtons = document.querySelectorAll('.toggle-button');
+const settingsContainer = document.getElementById('settings-container');
+
 const game = {
   errorCounter: 0,
   accuracy: 100,
@@ -25,26 +47,38 @@ const game = {
   currentChar: 0,
 };
 
-// DOM selectors
-const userInput = document.getElementById('user-input');
-const passage = document.getElementById('passage');
-const startButton = document.getElementById('start-button');
-const startButtonContainer = document.getElementById('start-button-container');
-const resetButton = document.getElementById('reset-button');
-const resetButtonContainer = document.getElementById('reset-button-container');
-const restartButton = document.getElementById('restart-button');
-const difficulty = document.getElementById('difficulty');
-const wpm = document.getElementById('words-per-minute');
-const finalWpm = document.getElementById('final-words-per-minute');
-const mode = document.getElementById('mode');
-const time = document.getElementById('time');
-const accuracy = document.getElementById('accuracy');
-const finalAccuracy = document.getElementById('final-accuracy');
-const highScore = document.getElementById('high-score');
-const testComplete = document.getElementById('test-complete');
-const finalCorrect = document.getElementById('final-correct');
-const finalErrors = document.getElementById('final-errors');
-const gameContainer = document.getElementById('game-container');
+let lastInteraction = 'mouse';
+
+document.addEventListener('pointerdown', (e) => {
+  lastInteraction = 'mouse';
+
+  toggleButtons.forEach((button) => {
+    toggleDropdown(button, e);
+  });
+});
+
+const toggleDropdown = (button, e) => {
+  const dropdown = button.nextElementSibling;
+
+  if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add('hidden');
+  } else {
+    dropdown.classList.remove('hidden');
+  }
+};
+
+document.addEventListener('keydown', (e) => {
+  lastInteraction = 'keyboard';
+
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    toggleButtons.forEach((button) => {
+      toggleDropdown(button, e);
+    });
+  }
+});
+
+document.addEventListener('click', function (e) {});
 
 // global variables
 const blockedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete'];
@@ -86,6 +120,8 @@ const startGame = () => {
   game.wordsPerMinute = 0;
   passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
   passage.classList.remove('blur-[6px]', 'opacity-40');
+  time.classList.add('!text-yellow-400');
+  accuracy.classList.add('!text-red-500');
 };
 
 const resetGame = () => {
@@ -105,6 +141,9 @@ const resetGame = () => {
   game.wordsPerMinute = 0;
   passage.classList.add('blur-[6px]', 'opacity-40');
   loadPassage(game.difficulty);
+  time.classList.remove('!text-yellow-400');
+  accuracy.classList.remove('!text-red-500');
+  settingsContainer.classList.remove('hidden');
 };
 
 const startTimer = (direction, startTime) => {
@@ -130,7 +169,7 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 1000);
+  }, 10);
 };
 
 // start game
@@ -252,27 +291,29 @@ function endGame() {
   userInput.removeEventListener('input', handleInput);
 
   gameContainer.classList.add('hidden');
+
+  time.classList.remove('!text-yellow-400');
+  accuracy.classList.remove('!text-red-500');
+
+  settingsContainer.classList.add('hidden');
 }
 
 // select difficulty
 difficulty.addEventListener('change', (e) => {
-  loadPassage(e.target.value);
+  game.difficulty = e.target.value;
+  difficulty.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
 // select mode
 mode.addEventListener('change', (e) => {
   game.selectedMode = e.target.value;
+  mode.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
-resetButton.addEventListener('click', (e) => {
-  resetGame();
-});
-
-restartButton.addEventListener('click', (e) => {
-  resetGame();
-});
+resetButton.addEventListener('click', resetGame);
+restartButton.addEventListener('click', resetGame);
 
 // show passage with initially checked difficulty
 const initialDifficulty = Array.from(difficulty.querySelectorAll('input')).filter((i) => i.checked);

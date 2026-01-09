@@ -10,7 +10,10 @@
 }
 
 @theme {
-  --font-display: 'Sora', 'sans-serif';
+  --focus-shadow: 0 0 0 2px var(--color-neutral-900), 0 0 0 4px var(--color-blue-400);
+  --focus-shadow-lg: 0 0 0 3px var(--color-neutral-900), 0 0 0 5px var(--color-blue-400);
+  --icon-shadow: 0 0 0 7.5px hsla(140deg, 63%, 57%, 0.2), 0 0 0 15px hsla(140deg, 63%, 57%, 0.1);
+  --icon-shadow-lg: 0 0 0 16px hsla(140deg, 63%, 57%, 0.2), 0 0 0 32px hsla(140deg, 63%, 57%, 0.1);
   --breakpoint-3xl: 120rem;
 
   --color-neutral-900: hsl(0, 0%, 7%);

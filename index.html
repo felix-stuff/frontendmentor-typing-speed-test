@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="bg-neutral-900 font-display text-white">
+<html lang="en" class="font-display bg-neutral-900 text-white">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,78 +8,133 @@
     <link rel="stylesheet" href="public/output.css" />
     <script src="src/js/main.js" defer></script>
   </head>
-  <body class="mx-auto max-w-7xl p-4 md:p-8">
-    <header class="mb-8 border-b border-neutral-700 pb-4">
-      <div class="mb-8 flex items-center justify-between">
-        <img src="public/assets/images/logo-small.svg" alt="Typing Speed Test" />
-        <span class="flex items-center gap-x-2.5 text-neutral-400">
-          <img src="public/assets/images/icon-personal-best.svg" alt="" class="h-4" />
+  <body class="mx-auto max-w-7xl p-4 select-none md:p-8">
+    <header>
+      <div class="mb-8 flex items-center justify-between md:mb-10">
+        <picture>
+          <source srcset="/public/assets/images/logo-large.svg" media="(min-width: 48em)" type="image/svg+xml" />
+          <img src="public/assets/images/logo-small.svg" alt="Typing Speed Test" />
+        </picture>
+        <span class="flex items-center gap-x-2.5 text-neutral-400 md:text-lg">
+          <img src="public/assets/images/icon-personal-best.svg" alt="" class="h-4 md:h-[1.125rem]" />
           <span>
             Personal best:
             <span id="high-score" class="text-white">92</span>
           </span>
         </span>
       </div>
+      <div id="settings-container" class="mb-8 border-b border-neutral-700 pb-4">
+        <div
+          class="grid grid-flow-col grid-cols-3 divide-x divide-neutral-400 md:flex md:grid-cols-none md:items-baseline md:gap-x-6 md:pb-1"
+        >
+          <span
+            class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
+          >
+            WPM:
+            <strong id="words-per-minute" class="text-2xl leading-none text-white">0</strong>
+          </span>
+          <span
+            class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
+          >
+            Accuracy:
+            <strong id="accuracy" class="text-2xl leading-none text-white">100%</strong>
+          </span>
+          <span
+            class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
+          >
+            Time:
+            <strong id="time" class="text-2xl leading-none text-white">0:60</strong>
+          </span>
+        </div>
 
-      <div class="mb-5 grid grid-flow-col grid-cols-3">
-        <span
-          class="grid gap-2 border-r border-neutral-400 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400"
+        <div
+          class="my-4 grid grid-cols-2 gap-x-2.5 md:flex md:grid-cols-none md:gap-x-4 md:divide-x md:divide-neutral-700"
         >
-          WPM:
-          <strong id="words-per-minute" class="text-2xl leading-none text-white">0</strong>
-        </span>
-        <span
-          class="grid gap-2 border-r border-neutral-400 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400"
-        >
-          Accuracy:
-          <strong id="accuracy" class="text-2xl leading-none text-red-500">100%</strong>
-        </span>
-        <span class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400">
-          Time:
-          <strong id="time" class="text-2xl leading-none text-yellow-400">0:60</strong>
-        </span>
-      </div>
+          <div class="relative md:pr-4">
+            <button
+              type="button"
+              class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px] outline-none focus-visible:shadow-(--focus-shadow) md:hidden"
+            >
+              <span>Difficulty</span>
+              <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+            </button>
+            <fieldset
+              id="difficulty"
+              class="absolute z-1 mt-[7px] grid hidden w-full items-center divide-y divide-neutral-700 rounded-lg bg-neutral-800 leading-none tracking-[-0.48px] md:relative md:m-0 md:flex md:gap-x-1.5 md:divide-y-0 md:bg-transparent"
+            >
+              <legend class="sr-only float-left block text-gray-400 md:not-sr-only md:mr-2">Difficulty:</legend>
+              <label for="easy" class="cursor-pointer p-2.5 md:p-0">
+                <input type="radio" value="easy" id="easy" name="difficulty" class="peer sr-only" />
+                <span
+                  class="flex items-center gap-x-3 rounded-lg transition duration-300 peer-focus-visible:shadow-(--focus-shadow) before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400 md:border md:border-b-neutral-400 md:px-2.5 md:py-1.5 md:peer-checked:border-blue-400 md:peer-checked:text-blue-400 md:before:hidden hover:md:border-blue-400 md:hover:text-blue-400"
+                >
+                  Easy
+                </span>
+              </label>
+              <label for="medium" class="cursor-pointer p-2.5 md:p-0">
+                <input type="radio" value="medium" id="medium" name="difficulty" class="peer sr-only" />
+                <span
+                  class="flex items-center gap-x-3 rounded-lg transition duration-300 peer-focus-visible:shadow-(--focus-shadow) before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400 md:border md:border-b-neutral-400 md:px-2.5 md:py-1.5 md:peer-checked:border-blue-400 md:peer-checked:text-blue-400 md:before:hidden hover:md:border-blue-400 md:hover:text-blue-400"
+                >
+                  Medium
+                </span>
+              </label>
+              <label for="hard" class="cursor-pointer p-2.5 md:p-0">
+                <input type="radio" checked value="hard" id="hard" name="difficulty" class="peer sr-only" />
+                <span
+                  class="flex items-center gap-x-3 rounded-lg transition duration-300 peer-focus-visible:shadow-(--focus-shadow) before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400 md:border md:border-b-neutral-400 md:px-2.5 md:py-1.5 md:peer-checked:border-blue-400 md:peer-checked:text-blue-400 md:before:hidden hover:md:border-blue-400 md:hover:text-blue-400"
+                >
+                  Hard
+                </span>
+              </label>
+            </fieldset>
+          </div>
 
-      <div class="grid grid-cols-2 gap-x-2.5">
-        <button
-          type="button"
-          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
-        >
-          <span>Difficulty</span>
-          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
-        </button>
-        <fieldset id="difficulty" class="grid hidden">
-          <label for="easy">
-            <input type="radio" value="easy" id="easy" name="difficulty" />
-            Easy
-          </label>
-          <label for="medium">
-            <input type="radio" value="medium" id="medium" name="difficulty" />
-            Medium
-          </label>
-          <label for="hard">
-            <input type="radio" checked value="hard" id="hard" name="difficulty" />
-            Hard
-          </label>
-        </fieldset>
-
-        <button
-          type="button"
-          class="flex justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px]"
-        >
-          <span>Mode</span>
-          <img src="public/assets/images/icon-down-arrow.svg" alt="" />
-        </button>
-        <fieldset id="mode" class="grid hidden">
-          <label for="timed-mode">
-            <input type="radio" checked value="timed" id="timed-mode" name="mode" />
-            Timed (60s)
-          </label>
-          <label for="passage-mode">
-            <input type="radio" value="passage" id="passage-mode" name="mode" />
-            Passage
-          </label>
-        </fieldset>
+          <div class="relative md:pr-4">
+            <button
+              type="button"
+              class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px] outline-none focus-visible:shadow-(--focus-shadow) md:hidden"
+            >
+              <span>Mode</span>
+              <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+            </button>
+            <fieldset
+              id="mode"
+              class="absolute z-1 mt-[7px] grid hidden w-full items-center divide-y divide-neutral-700 rounded-lg bg-neutral-800 leading-none tracking-[-0.48px] md:relative md:m-0 md:flex md:gap-x-1.5 md:divide-y-0 md:bg-transparent"
+            >
+              <legend class="sr-only float-left mr-2 text-gray-400 md:not-sr-only md:mr-2">Mode:</legend>
+              <label for="timed-mode" class="cursor-pointer p-2.5 md:p-0">
+                <input
+                  type="radio"
+                  checked
+                  value="timed"
+                  id="timed-mode"
+                  name="mode"
+                  class="peer block h-0 appearance-none"
+                />
+                <span
+                  class="flex items-center gap-x-3 rounded-lg transition duration-300 peer-focus-visible:shadow-(--focus-shadow) before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400 md:border md:border-b-neutral-400 md:px-2.5 md:py-1.5 md:peer-checked:border-blue-400 md:peer-checked:text-blue-400 md:before:hidden hover:md:border-blue-400 md:hover:text-blue-400"
+                >
+                  Timed (60s)
+                </span>
+              </label>
+              <label for="passage-mode" class="cursor-pointer p-2.5 md:p-0">
+                <input
+                  type="radio"
+                  value="passage"
+                  id="passage-mode"
+                  name="mode"
+                  class="peer block h-0 appearance-none"
+                />
+                <span
+                  class="flex items-center gap-x-3 rounded-lg transition duration-300 peer-focus-visible:shadow-(--focus-shadow) before:ml-0.5 before:block before:h-4 before:w-4 before:rounded-full before:border before:border-white before:content-[''] peer-checked:before:border-4 peer-checked:before:border-blue-400 md:border md:border-b-neutral-400 md:px-2.5 md:py-1.5 md:peer-checked:border-blue-400 md:peer-checked:text-blue-400 md:before:hidden hover:md:border-blue-400 md:hover:text-blue-400"
+                >
+                  Passage
+                </span>
+              </label>
+            </fieldset>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -102,7 +157,7 @@
           <button
             type="button"
             id="start-button"
-            class="cursor-pointer rounded-lg bg-blue-600 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 hover:bg-blue-400"
+            class="cursor-pointer rounded-lg bg-blue-600 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 outline-none hover:bg-blue-400 focus-visible:shadow-(--focus-shadow-lg)"
           >
             Start Typing Test
           </button>
@@ -113,42 +168,85 @@
           <button
             type="button"
             id="reset-button"
-            class="mx-auto flex cursor-pointer gap-x-2.5 rounded-lg bg-neutral-800 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 hover:bg-neutral-700"
+            class="group mx-auto flex cursor-pointer gap-x-2.5 rounded-lg bg-neutral-800 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 outline-none hover:bg-white hover:text-neutral-900 focus-visible:shadow-(--focus-shadow-lg)"
           >
             Restart Test
-            <img src="public/assets/images/icon-restart.svg" alt="" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              class="fill-white transition duration-300 group-hover:fill-neutral-900"
+            >
+              <path
+                d="M1.563 1.281h.949c.246 0 .422.211.422.457l-.07 3.446a8.6 8.6 0 0 1 7.277-3.868c4.816 0 8.718 3.938 8.718 8.72-.035 4.816-3.937 8.683-8.718 8.683a8.86 8.86 0 0 1-5.871-2.215.446.446 0 0 1 0-.633l.703-.703c.14-.14.386-.14.562 0 1.23 1.09 2.813 1.723 4.606 1.723A6.88 6.88 0 0 0 17.03 10c0-3.797-3.093-6.89-6.89-6.89-2.813 0-5.203 1.687-6.293 4.078l4.43-.106c.245 0 .456.176.456.422v.95c0 .245-.21.421-.421.421h-6.75a.406.406 0 0 1-.422-.422v-6.75c0-.21.175-.422.422-.422"
+              />
+            </svg>
           </button>
         </div>
       </div>
 
-      <section id="test-complete" class="hidden">
-        <h1>Test Complete!</h1>
-        <p>Solid run. Keep pushing to beat your high score.</p>
+      <section id="test-complete" class="hidden pt-4">
+        <div class="relative mb-6">
+          <img src="public/assets/images/pattern-star-2.svg" alt="" class="absolute bottom-0 left-0 w-5 md:w-8" />
+          <img
+            src="public/assets/images/icon-completed.svg"
+            alt=""
+            class="mx-auto h-12 w-12 rounded-full shadow-(--icon-shadow) md:h-16 md:w-16 md:shadow-(--icon-shadow-lg)"
+          />
+        </div>
 
-        <span>
-          WPM:
-          <span id="final-words-per-minute">0</span>
-        </span>
+        <div class="mb-6 grid gap-y-2.5 text-center leading-[1.2]">
+          <h1 class="mt-4 text-2xl leading-[1.36] font-bold tracking-[-0.32px] md:text-[2.5rem] md:tracking-[0.4px]">
+            Test Complete!
+          </h1>
+          <p class="leading-[1.2] tracking-[-0.6px] tracking-[-0.48px] text-neutral-400 md:text-xl">
+            Solid run. Keep pushing to beat your high score.
+          </p>
+        </div>
 
-        <span>
-          Accuracy:
-          <span id="final-accuracy">100%</span>
-        </span>
-
-        <span>
-          Characters:
-          <span id="final-correct"></span>
-          /
-          <span id="final-errors"></span>
-        </span>
+        <div class="grid gap-x-5 gap-y-4 md:my-5 md:grid-cols-3 lg:flex lg:justify-center">
+          <span
+            class="grid gap-y-3 rounded-lg border border-neutral-700 px-6 py-4 text-xl leading-[1.2] text-neutral-400 lg:w-40"
+          >
+            WPM:
+            <span id="final-words-per-minute" class="text-2xl leading-none font-bold text-white">0</span>
+          </span>
+          <span
+            class="grid gap-y-3 rounded-lg border border-neutral-700 px-6 py-4 text-xl leading-[1.2] text-neutral-400 lg:w-40"
+          >
+            Accuracy:
+            <span id="final-accuracy" class="text-2xl leading-none font-bold text-red-400">100%</span>
+          </span>
+          <span
+            class="grid gap-y-3 rounded-lg border border-neutral-700 px-6 py-4 text-xl leading-[1.2] text-neutral-400 lg:w-40"
+          >
+            Characters:
+            <span class="flex text-2xl leading-none font-bold">
+              <span id="final-correct" class="text-green-500"></span>
+              /
+              <span id="final-errors" class="text-red-500"></span>
+            </span>
+          </span>
+        </div>
 
         <button
           type="button"
           id="restart-button"
-          class="cursor-pointer rounded-lg border border-slate-500 p-2 transition hover:bg-slate-100"
+          class="group mx-auto mt-10 flex cursor-pointer gap-x-2.5 rounded-lg bg-white px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] text-neutral-900 transition duration-300 outline-none hover:opacity-90 focus-visible:shadow-(--focus-shadow-lg)"
         >
           Go Again
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" class="fill-neutral-900">
+            <path
+              d="M1.563 1.281h.949c.246 0 .422.211.422.457l-.07 3.446a8.6 8.6 0 0 1 7.277-3.868c4.816 0 8.718 3.938 8.718 8.72-.035 4.816-3.937 8.683-8.718 8.683a8.86 8.86 0 0 1-5.871-2.215.446.446 0 0 1 0-.633l.703-.703c.14-.14.386-.14.562 0 1.23 1.09 2.813 1.723 4.606 1.723A6.88 6.88 0 0 0 17.03 10c0-3.797-3.093-6.89-6.89-6.89-2.813 0-5.203 1.687-6.293 4.078l4.43-.106c.245 0 .456.176.456.422v.95c0 .245-.21.421-.421.421h-6.75a.406.406 0 0 1-.422-.422v-6.75c0-.21.175-.422.422-.422"
+            />
+          </svg>
         </button>
+        <img
+          src="public/assets/images/pattern-star-1.svg"
+          alt=""
+          class="md: my-10 mr-4 ml-auto h-10 w-10 md:m-0 md:ml-auto md:h-20 md:w-20"
+        />
       </section>
     </main>
   </body>
