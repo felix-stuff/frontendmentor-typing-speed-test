@@ -20,6 +20,7 @@ const finalCorrect = document.getElementById('final-correct');
 const finalErrors = document.getElementById('final-errors');
 const gameContainer = document.getElementById('game-container');
 const toggleButtons = document.querySelectorAll('.toggle-button');
+const settingsContainer = document.getElementById('settings-container');
 
 const game = {
   errorCounter: 0,
@@ -119,6 +120,8 @@ const startGame = () => {
   game.wordsPerMinute = 0;
   passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
   passage.classList.remove('blur-[6px]', 'opacity-40');
+  time.classList.add('!text-yellow-400');
+  accuracy.classList.add('!text-red-500');
 };
 
 const resetGame = () => {
@@ -138,6 +141,9 @@ const resetGame = () => {
   game.wordsPerMinute = 0;
   passage.classList.add('blur-[6px]', 'opacity-40');
   loadPassage(game.difficulty);
+  time.classList.remove('!text-yellow-400');
+  accuracy.classList.remove('!text-red-500');
+  settingsContainer.classList.remove('hidden');
 };
 
 const startTimer = (direction, startTime) => {
@@ -163,7 +169,7 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 1000);
+  }, 10);
 };
 
 // start game
@@ -285,6 +291,11 @@ function endGame() {
   userInput.removeEventListener('input', handleInput);
 
   gameContainer.classList.add('hidden');
+
+  time.classList.remove('!text-yellow-400');
+  accuracy.classList.remove('!text-red-500');
+
+  settingsContainer.classList.add('hidden');
 }
 
 // select difficulty
