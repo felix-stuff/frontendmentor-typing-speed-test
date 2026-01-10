@@ -24,6 +24,7 @@ const settingsContainer = document.getElementById('settings-container');
 
 const game = {
   errorCounter: 0,
+  errorMemory: [],
   accuracy: 100,
   mode: {
     passage: {
@@ -69,19 +70,18 @@ const toggleDropdown = (button, e) => {
 
 document.addEventListener('keydown', (e) => {
   lastInteraction = 'keyboard';
-
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    toggleButtons.forEach((button) => {
-      toggleDropdown(button, e);
-    });
+  if (e.target.matches('button')) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleButtons.forEach((button) => {
+        toggleDropdown(button, e);
+      });
+    }
   }
 });
 
-document.addEventListener('click', function (e) {});
-
 // global variables
-const blockedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete'];
+const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
 let timerId = null;
 const timeOut = 120;
 
@@ -95,6 +95,8 @@ const loadPassage = async (difficulty) => {
   const items = data[difficulty].length;
   const randomIndex = Math.floor(Math.random() * items);
   game.passage = data[difficulty][randomIndex].text;
+  game.results = Array(game.passage.length).fill('pending');
+  game.errorMemory = Array(game.passage.length).fill(false);
   populateDom(game.passage);
 };
 
@@ -169,7 +171,7 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 10);
+  }, 1000);
 };
 
 // start game
@@ -200,22 +202,25 @@ function handleInput(e) {
 
 function updateResults(typed) {
   for (let i = 0; i < game.passage.length; i++) {
-    const oldState = game.results[i];
-    let newState;
+    const prevStateAtIndex = game.results[i];
+    let newStateAtIndex;
+    console.log(game.results);
 
-    if (typed[i] === undefined) {
-      newState = 'pending';
-    } else if (typed[i] === game.passage[i]) {
-      newState = 'correct';
+    if (typed[i] === game.passage[i]) {
+      newStateAtIndex = 'correct';
     } else {
-      newState = 'wrong';
+      newStateAtIndex = 'wrong';
     }
 
-    if (newState === 'wrong' || oldState !== 'wrong') {
-      game.errorCounter++;
+    // count errors - only once per character
+    if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
+      if (game.errorMemory[i] === false) {
+        game.errorCounter++;
+        game.errorMemory[i] = true;
+      }
     }
 
-    game.results[i] = newState;
+    game.results[i] = newStateAtIndex;
   }
 }
 
@@ -231,6 +236,8 @@ function updateAccuracy() {
 
 // output results to the DOM
 function updateHighlighting() {
+  game.currentChar = game.results.indexOf('pending');
+
   game.results.forEach((result, index) => {
     passage.children[index].classList.remove(
       'text-green-500',
@@ -242,8 +249,6 @@ function updateHighlighting() {
       'opacity-20',
       'underline-offset-3',
     );
-
-    game.currentChar = game.results.indexOf('pending');
 
     passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
 
