@@ -43,7 +43,6 @@ const game = {
   wordsPerMinute: 0,
   results: [],
   highScore: 0,
-  typed: 0,
   currentChar: 0,
   lastTypedValue: '',
 };
@@ -281,12 +280,11 @@ function updateResults(typed) {
 }*/
 
 function updateAccuracy() {
-  const correct = game.results.filter((r) => r === 'correct').length;
-  const wrong = game.errorCounter;
-  const total = correct + wrong;
+  const totalChars = game.passage.length;
+  const correct = totalChars - game.errorCounter;
 
   // prevent division by zero
-  game.accuracy = total === 0 ? 100 : (correct / total) * 100;
+  game.accuracy = totalChars === 0 ? 100 : (correct / totalChars) * 100;
   accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 }
 
@@ -306,8 +304,7 @@ function updateHighlighting() {
       'underline-offset-3',
     );
 
-    console.log('index', game.results.indexOf(game.results[index]));
-    if (game.results.indexOf('pending') >= game.passage.length) {
+    if (game.currentChar !== -1) {
       passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
     }
 
@@ -322,24 +319,17 @@ function updateHighlighting() {
 }
 
 function calculateWordsPerMinute() {
-  let correctChars = game.lastTypedValue.length - game.errorCounter;
-  if (game.selectedMode === 'passage') {
-    game.wordsPerMinute = Math.round((correctChars * 60) / (5 * game.time));
-  } else {
-    game.wordsPerMinute = Math.round((correctChars * 60) / (5 * (60 - game.time)));
-  }
+  const elapsedSeconds = game.selectedMode === 'passage' ? game.time : 60 - game.time;
+  const correctChars = game.results.filter((r) => r === 'correct').length;
+  const minutes = elapsedSeconds / 60;
 
+  game.wordsPerMinute = Math.round(correctChars / 5 / minutes);
   wpm.textContent = game.wordsPerMinute;
 }
 
 function handleKeydown(e) {
   if (blockedKeys.includes(e.key)) {
     e.preventDefault();
-  }
-
-  // count all regular typed chars
-  if (e.key.length === 1) {
-    game.typed++;
   }
 }
 
