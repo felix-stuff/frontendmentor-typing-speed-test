@@ -40,12 +40,12 @@ const game = {
   difficulty: 'hard',
   time: 0,
   passage: '',
-  words: 0,
   wordsPerMinute: 0,
   results: [],
   highScore: 0,
   typed: 0,
   currentChar: 0,
+  lastTypedValue: '',
 };
 
 let lastInteraction = 'mouse';
@@ -111,7 +111,6 @@ const populateDom = (text) => {
 };
 
 const startGame = () => {
-  userInput.value = '';
   userInput.focus();
   clearInterval(timerId);
   game.errorCounter = 0;
@@ -140,7 +139,6 @@ const resetGame = () => {
   populateDom(game.passage);
   testComplete.classList.add('hidden');
   gameContainer.classList.remove('hidden');
-  game.wordsPerMinute = 0;
   passage.classList.add('blur-[6px]', 'opacity-40');
   loadPassage(game.difficulty);
   time.classList.remove('!text-yellow-400');
@@ -182,20 +180,17 @@ userInput.addEventListener('keydown', handleKeydown);
 
 function handleInput(e) {
   const typed = e.target.value;
+  game.lastTypedValue = typed;
+
+  console.log(game.errorCounter);
 
   updateResults(typed);
-  updateAccuracy();
   updateHighlighting();
-
-  if (typed.split(' ')) {
-    game.words = typed.split(' ').length - 1;
-  }
-
+  updateAccuracy();
   calculateWordsPerMinute();
 
-  // end game if all chars are correct
-  const correctChars = game.results.filter((result) => result === 'correct').length;
-  if (correctChars === game.passage.length) {
+  // end game if number of typed chars matches passage
+  if (game.lastTypedValue.length === game.passage.length) {
     endGame();
   }
 }
@@ -204,9 +199,10 @@ function updateResults(typed) {
   for (let i = 0; i < game.passage.length; i++) {
     const prevStateAtIndex = game.results[i];
     let newStateAtIndex;
-    console.log(game.results);
 
-    if (typed[i] === game.passage[i]) {
+    if (typed[i] === undefined) {
+      newStateAtIndex = 'pending';
+    } else if (typed[i] === game.passage[i]) {
       newStateAtIndex = 'correct';
     } else {
       newStateAtIndex = 'wrong';
@@ -224,9 +220,69 @@ function updateResults(typed) {
   }
 }
 
+/*function updateResults2(typed) {
+  let prev, curr;
+  let typedIndex = 0;
+
+  prev = game.lastTypedValue;
+  curr = typed;
+
+  console.log('prev', prev);
+  console.log('curr', curr);
+
+  // detect insert character
+  if (prev.length < curr.length) {
+    typedIndex = curr.length - 1;
+  }
+
+  // detect delete character
+  if (prev.length > curr.length) {
+    typedIndex = curr.length;
+    game.results[typedIndex] = 'pending';
+  }
+
+  // detect replace character
+  if (prev.length === curr.length) {
+    if (prev === curr) {
+      typedIndex = -1;
+    } else {
+      let i = 0;
+      while (prev[i] === curr[i]) i++;
+      typedIndex = i;
+    }
+  }
+
+  if (typedIndex === -1) {
+    game.lastTypedValue = curr;
+    return;
+  }
+
+  game.lastTypedValue = curr;
+
+  const prevStateAtIndex = game.results[typedIndex];
+  let newStateAtIndex;
+
+  if (typed[typedIndex] === undefined) {
+    newStateAtIndex = 'pending';
+  } else if (typed[typedIndex] === game.passage[typedIndex]) {
+    newStateAtIndex = 'correct';
+  } else {
+    newStateAtIndex = 'wrong';
+  }
+
+  // count errors - only once per character
+  if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
+    if (game.errorMemory[typedIndex] === false) {
+      game.errorCounter++;
+      game.errorMemory[typedIndex] = true;
+    }
+  }
+  game.results[typedIndex] = newStateAtIndex;
+}*/
+
 function updateAccuracy() {
   const correct = game.results.filter((r) => r === 'correct').length;
-  const wrong = game.results.filter((r) => r === 'wrong').length;
+  const wrong = game.errorCounter;
   const total = correct + wrong;
 
   // prevent division by zero
@@ -250,7 +306,10 @@ function updateHighlighting() {
       'underline-offset-3',
     );
 
-    passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+    console.log('index', game.results.indexOf(game.results[index]));
+    if (game.results.indexOf('pending') >= game.passage.length) {
+      passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+    }
 
     if (result === 'correct') {
       passage.children[index].classList.add('text-green-500');
@@ -263,10 +322,11 @@ function updateHighlighting() {
 }
 
 function calculateWordsPerMinute() {
-  if (game.mode === 'passage') {
-    game.wordsPerMinute = Math.round(game.words / 60);
+  let correctChars = game.lastTypedValue.length - game.errorCounter;
+  if (game.selectedMode === 'passage') {
+    game.wordsPerMinute = Math.round((correctChars * 60) / (5 * game.time));
   } else {
-    game.wordsPerMinute = game.words;
+    game.wordsPerMinute = Math.round((correctChars * 60) / (5 * (60 - game.time)));
   }
 
   wpm.textContent = game.wordsPerMinute;
@@ -289,8 +349,8 @@ function endGame() {
   finalWpm.textContent = game.wordsPerMinute;
   finalAccuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 
-  const correctChars = game.results.filter((result) => result === 'correct').length;
-  const wrongChars = game.results.filter((result) => result === 'wrong').length;
+  const correctChars = game.lastTypedValue.length - game.errorCounter;
+  const wrongChars = game.errorCounter;
   finalCorrect.textContent = correctChars;
   finalErrors.textContent = wrongChars;
   userInput.removeEventListener('input', handleInput);
@@ -299,6 +359,7 @@ function endGame() {
 
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
+  setHighScore();
 
   settingsContainer.classList.add('hidden');
 }
@@ -323,3 +384,21 @@ restartButton.addEventListener('click', resetGame);
 // show passage with initially checked difficulty
 const initialDifficulty = Array.from(difficulty.querySelectorAll('input')).filter((i) => i.checked);
 loadPassage(initialDifficulty[0].value);
+
+// set highscore, triggerd by endGame()
+const setHighScore = () => {
+  if (game.highScore < game.wordsPerMinute) {
+    game.highScore = game.wordsPerMinute;
+    localStorage.setItem('high score', game.highScore);
+    updateHighScoreUI(game.highScore);
+  }
+};
+
+if (localStorage.getItem('high score')) {
+  game.highScore = localStorage.getItem('high score');
+  updateHighScoreUI(localStorage.getItem('high score'));
+}
+
+function updateHighScoreUI(highScoreValue) {
+  highScore.textContent = `${highScoreValue} WPM`;
+}
