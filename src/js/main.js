@@ -120,7 +120,7 @@ const startGame = () => {
   startButtonContainer.classList.add('hidden');
   userInput.addEventListener('input', handleInput);
   game.wordsPerMinute = 0;
-  passage.children[game.currentChar].classList.add('bg-white/20');
+  passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
   passage.classList.remove('blur-[6px]', 'opacity-40');
   time.classList.add('!text-yellow-400');
   accuracy.classList.add('!text-red-500');
@@ -304,11 +304,12 @@ function updateHighlighting() {
       'decoration-3',
       'text-neutral-400',
       'bg-white/20',
+      'rounded-sm',
       'underline-offset-3',
     );
 
     if (game.currentChar !== -1) {
-      passage.children[game.currentChar].classList.add('bg-white/20');
+      passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
     }
 
     if (result === 'correct') {
