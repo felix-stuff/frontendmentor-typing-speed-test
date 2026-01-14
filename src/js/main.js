@@ -21,6 +21,7 @@ const finalErrors = document.getElementById('final-errors');
 const gameContainer = document.getElementById('game-container');
 const toggleButtons = document.querySelectorAll('.toggle-button');
 const settingsContainer = document.getElementById('settings-container');
+const successMessage = document.getElementById('success-message');
 
 const game = {
   errorCounter: 0,
@@ -45,6 +46,7 @@ const game = {
   highScore: 0,
   currentChar: 0,
   lastTypedValue: '',
+  baseline: false,
 };
 
 let lastInteraction = 'mouse';
@@ -82,7 +84,7 @@ document.addEventListener('keydown', (e) => {
 // global variables
 const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
 let timerId = null;
-const timeOut = 120;
+const timeOut = 300;
 
 // fetch passge async
 const loadPassage = async (difficulty) => {
@@ -118,7 +120,7 @@ const startGame = () => {
   startButtonContainer.classList.add('hidden');
   userInput.addEventListener('input', handleInput);
   game.wordsPerMinute = 0;
-  passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+  passage.children[game.currentChar].classList.add('bg-white/20');
   passage.classList.remove('blur-[6px]', 'opacity-40');
   time.classList.add('!text-yellow-400');
   accuracy.classList.add('!text-red-500');
@@ -143,6 +145,8 @@ const resetGame = () => {
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
   settingsContainer.classList.remove('hidden');
+  game.lastTypedValue = '';
+  game.currentChar = 0;
 };
 
 const startTimer = (direction, startTime) => {
@@ -281,10 +285,10 @@ function updateResults(typed) {
 
 function updateAccuracy() {
   const totalChars = game.passage.length;
-  const correct = totalChars - game.errorCounter;
+  const correctChars = totalChars - game.errorCounter;
 
   // prevent division by zero
-  game.accuracy = totalChars === 0 ? 100 : (correct / totalChars) * 100;
+  game.accuracy = totalChars === 0 ? 100 : (correctChars / totalChars) * 100;
   accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 }
 
@@ -299,13 +303,12 @@ function updateHighlighting() {
       'underline',
       'decoration-3',
       'text-neutral-400',
-      'bg-white',
-      'opacity-20',
+      'bg-white/20',
       'underline-offset-3',
     );
 
     if (game.currentChar !== -1) {
-      passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+      passage.children[game.currentChar].classList.add('bg-white/20');
     }
 
     if (result === 'correct') {
@@ -320,10 +323,10 @@ function updateHighlighting() {
 
 function calculateWordsPerMinute() {
   const elapsedSeconds = game.selectedMode === 'passage' ? game.time : 60 - game.time;
-  const correctChars = game.results.filter((r) => r === 'correct').length;
+  const correctChars = getCorrectCharCount();
   const minutes = elapsedSeconds / 60;
 
-  game.wordsPerMinute = Math.round(correctChars / 5 / minutes);
+  game.wordsPerMinute = minutes > 0 ? Math.round(correctChars / 5 / minutes) : 0;
   wpm.textContent = game.wordsPerMinute;
 }
 
@@ -339,7 +342,7 @@ function endGame() {
   finalWpm.textContent = game.wordsPerMinute;
   finalAccuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 
-  const correctChars = game.lastTypedValue.length - game.errorCounter;
+  const correctChars = getCorrectCharCount();
   const wrongChars = game.errorCounter;
   finalCorrect.textContent = correctChars;
   finalErrors.textContent = wrongChars;
@@ -349,6 +352,10 @@ function endGame() {
 
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
+
+  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
+  successMessage.querySelector('h1').textContent = 'Test Complete!';
+  successMessage.querySelector('p').textContent = 'Solid run. Keep pushing to beat your high score.';
   setHighScore();
 
   settingsContainer.classList.add('hidden');
@@ -377,18 +384,54 @@ loadPassage(initialDifficulty[0].value);
 
 // set highscore, triggerd by endGame()
 const setHighScore = () => {
+  // set Highscore
   if (game.highScore < game.wordsPerMinute) {
     game.highScore = game.wordsPerMinute;
     localStorage.setItem('high score', game.highScore);
     updateHighScoreUI(game.highScore);
+
+    // set baseline
+    if (!game.baseline) {
+      return setBaseline();
+    }
+
+    let positionList = [
+      { x: window.innerWidth * 0.5, y: window.innerHeight * 0.75 },
+      { x: window.innerWidth * 0.25, y: window.innerHeight * 0.75 },
+      { x: window.innerWidth * 0.75, y: window.innerHeight * 0.75 },
+    ];
+    for (let i = 0; i < positionList.length; i++) {
+      setTimeout(() => confetti({ position: positionList[i] }), i * 250);
+    }
+
+    document.getElementById('success-icon').src = 'public/assets/images/icon-new-pb.svg';
+    successMessage.querySelector('h1').textContent = 'High Score Smashed!';
+    successMessage.querySelector('p').textContent = 'You’re getting faster. That was incredible typing.';
+    restartButton.querySelector('span').textContent = 'Beat This Score';
   }
 };
 
+function setBaseline() {
+  game.baseline = true;
+  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
+  successMessage.querySelector('h1').textContent = 'Baseline Established!';
+  successMessage.querySelector('p').textContent = 'You’ve set the bar. Now the real challenge begins—time to beat it.';
+  restartButton.querySelector('span').textContent = 'Beat This Score';
+}
+
 if (localStorage.getItem('high score')) {
+  game.baseline = true;
   game.highScore = localStorage.getItem('high score');
   updateHighScoreUI(localStorage.getItem('high score'));
 }
 
 function updateHighScoreUI(highScoreValue) {
   highScore.textContent = `${highScoreValue} WPM`;
+}
+
+function getCorrectCharCount() {
+  if (game.selectedMode === 'passage') {
+    return game.passage.length - game.errorCounter;
+  }
+  return game.results.filter((r) => r === 'correct').length;
 }
