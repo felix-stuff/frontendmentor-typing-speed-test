@@ -21,9 +21,11 @@ const finalErrors = document.getElementById('final-errors');
 const gameContainer = document.getElementById('game-container');
 const toggleButtons = document.querySelectorAll('.toggle-button');
 const settingsContainer = document.getElementById('settings-container');
+const successMessage = document.getElementById('success-message');
 
 const game = {
   errorCounter: 0,
+  errorMemory: [],
   accuracy: 100,
   mode: {
     passage: {
@@ -39,12 +41,12 @@ const game = {
   difficulty: 'hard',
   time: 0,
   passage: '',
-  words: 0,
   wordsPerMinute: 0,
   results: [],
   highScore: 0,
-  typed: 0,
   currentChar: 0,
+  lastTypedValue: '',
+  baseline: false,
 };
 
 let lastInteraction = 'mouse';
@@ -69,21 +71,20 @@ const toggleDropdown = (button, e) => {
 
 document.addEventListener('keydown', (e) => {
   lastInteraction = 'keyboard';
-
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    toggleButtons.forEach((button) => {
-      toggleDropdown(button, e);
-    });
+  if (e.target.matches('button')) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleButtons.forEach((button) => {
+        toggleDropdown(button, e);
+      });
+    }
   }
 });
 
-document.addEventListener('click', function (e) {});
-
 // global variables
-const blockedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete'];
+const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
 let timerId = null;
-const timeOut = 120;
+const timeOut = 300;
 
 // fetch passge async
 const loadPassage = async (difficulty) => {
@@ -95,6 +96,8 @@ const loadPassage = async (difficulty) => {
   const items = data[difficulty].length;
   const randomIndex = Math.floor(Math.random() * items);
   game.passage = data[difficulty][randomIndex].text;
+  game.results = Array(game.passage.length).fill('pending');
+  game.errorMemory = Array(game.passage.length).fill(false);
   populateDom(game.passage);
 };
 
@@ -109,7 +112,6 @@ const populateDom = (text) => {
 };
 
 const startGame = () => {
-  userInput.value = '';
   userInput.focus();
   clearInterval(timerId);
   game.errorCounter = 0;
@@ -118,7 +120,7 @@ const startGame = () => {
   startButtonContainer.classList.add('hidden');
   userInput.addEventListener('input', handleInput);
   game.wordsPerMinute = 0;
-  passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+  passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
   passage.classList.remove('blur-[6px]', 'opacity-40');
   time.classList.add('!text-yellow-400');
   accuracy.classList.add('!text-red-500');
@@ -138,12 +140,13 @@ const resetGame = () => {
   populateDom(game.passage);
   testComplete.classList.add('hidden');
   gameContainer.classList.remove('hidden');
-  game.wordsPerMinute = 0;
   passage.classList.add('blur-[6px]', 'opacity-40');
   loadPassage(game.difficulty);
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
   settingsContainer.classList.remove('hidden');
+  game.lastTypedValue = '';
+  game.currentChar = 0;
 };
 
 const startTimer = (direction, startTime) => {
@@ -169,7 +172,7 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 10);
+  }, 1000);
 };
 
 // start game
@@ -180,57 +183,119 @@ userInput.addEventListener('keydown', handleKeydown);
 
 function handleInput(e) {
   const typed = e.target.value;
+  game.lastTypedValue = typed;
+
+  console.log(game.errorCounter);
 
   updateResults(typed);
-  updateAccuracy();
   updateHighlighting();
-
-  if (typed.split(' ')) {
-    game.words = typed.split(' ').length - 1;
-  }
-
+  updateAccuracy();
   calculateWordsPerMinute();
 
-  // end game if all chars are correct
-  const correctChars = game.results.filter((result) => result === 'correct').length;
-  if (correctChars === game.passage.length) {
+  // end game if number of typed chars matches passage
+  if (game.lastTypedValue.length === game.passage.length) {
     endGame();
   }
 }
 
 function updateResults(typed) {
   for (let i = 0; i < game.passage.length; i++) {
-    const oldState = game.results[i];
-    let newState;
+    const prevStateAtIndex = game.results[i];
+    let newStateAtIndex;
 
     if (typed[i] === undefined) {
-      newState = 'pending';
+      newStateAtIndex = 'pending';
     } else if (typed[i] === game.passage[i]) {
-      newState = 'correct';
+      newStateAtIndex = 'correct';
     } else {
-      newState = 'wrong';
+      newStateAtIndex = 'wrong';
     }
 
-    if (newState === 'wrong' || oldState !== 'wrong') {
-      game.errorCounter++;
+    // count errors - only once per character
+    if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
+      if (game.errorMemory[i] === false) {
+        game.errorCounter++;
+        game.errorMemory[i] = true;
+      }
     }
 
-    game.results[i] = newState;
+    game.results[i] = newStateAtIndex;
   }
 }
 
+/*function updateResults2(typed) {
+  let prev, curr;
+  let typedIndex = 0;
+
+  prev = game.lastTypedValue;
+  curr = typed;
+
+  console.log('prev', prev);
+  console.log('curr', curr);
+
+  // detect insert character
+  if (prev.length < curr.length) {
+    typedIndex = curr.length - 1;
+  }
+
+  // detect delete character
+  if (prev.length > curr.length) {
+    typedIndex = curr.length;
+    game.results[typedIndex] = 'pending';
+  }
+
+  // detect replace character
+  if (prev.length === curr.length) {
+    if (prev === curr) {
+      typedIndex = -1;
+    } else {
+      let i = 0;
+      while (prev[i] === curr[i]) i++;
+      typedIndex = i;
+    }
+  }
+
+  if (typedIndex === -1) {
+    game.lastTypedValue = curr;
+    return;
+  }
+
+  game.lastTypedValue = curr;
+
+  const prevStateAtIndex = game.results[typedIndex];
+  let newStateAtIndex;
+
+  if (typed[typedIndex] === undefined) {
+    newStateAtIndex = 'pending';
+  } else if (typed[typedIndex] === game.passage[typedIndex]) {
+    newStateAtIndex = 'correct';
+  } else {
+    newStateAtIndex = 'wrong';
+  }
+
+  // count errors - only once per character
+  if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
+    if (game.errorMemory[typedIndex] === false) {
+      game.errorCounter++;
+      game.errorMemory[typedIndex] = true;
+    }
+  }
+  game.results[typedIndex] = newStateAtIndex;
+}*/
+
 function updateAccuracy() {
-  const correct = game.results.filter((r) => r === 'correct').length;
-  const wrong = game.results.filter((r) => r === 'wrong').length;
-  const total = correct + wrong;
+  const totalChars = game.passage.length;
+  const correctChars = totalChars - game.errorCounter;
 
   // prevent division by zero
-  game.accuracy = total === 0 ? 100 : (correct / total) * 100;
+  game.accuracy = totalChars === 0 ? 100 : (correctChars / totalChars) * 100;
   accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 }
 
 // output results to the DOM
 function updateHighlighting() {
+  game.currentChar = game.results.indexOf('pending');
+
   game.results.forEach((result, index) => {
     passage.children[index].classList.remove(
       'text-green-500',
@@ -238,14 +303,14 @@ function updateHighlighting() {
       'underline',
       'decoration-3',
       'text-neutral-400',
-      'bg-white',
-      'opacity-20',
+      'bg-white/20',
+      'rounded-sm',
       'underline-offset-3',
     );
 
-    game.currentChar = game.results.indexOf('pending');
-
-    passage.children[game.currentChar].classList.add('bg-white', 'opacity-20');
+    if (game.currentChar !== -1) {
+      passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
+    }
 
     if (result === 'correct') {
       passage.children[index].classList.add('text-green-500');
@@ -258,23 +323,17 @@ function updateHighlighting() {
 }
 
 function calculateWordsPerMinute() {
-  if (game.mode === 'passage') {
-    game.wordsPerMinute = Math.round(game.words / 60);
-  } else {
-    game.wordsPerMinute = game.words;
-  }
+  const elapsedSeconds = game.selectedMode === 'passage' ? game.time : 60 - game.time;
+  const correctChars = getCorrectCharCount();
+  const minutes = elapsedSeconds / 60;
 
+  game.wordsPerMinute = minutes > 0 ? Math.round(correctChars / 5 / minutes) : 0;
   wpm.textContent = game.wordsPerMinute;
 }
 
 function handleKeydown(e) {
   if (blockedKeys.includes(e.key)) {
     e.preventDefault();
-  }
-
-  // count all regular typed chars
-  if (e.key.length === 1) {
-    game.typed++;
   }
 }
 
@@ -284,8 +343,8 @@ function endGame() {
   finalWpm.textContent = game.wordsPerMinute;
   finalAccuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 
-  const correctChars = game.results.filter((result) => result === 'correct').length;
-  const wrongChars = game.results.filter((result) => result === 'wrong').length;
+  const correctChars = getCorrectCharCount();
+  const wrongChars = game.errorCounter;
   finalCorrect.textContent = correctChars;
   finalErrors.textContent = wrongChars;
   userInput.removeEventListener('input', handleInput);
@@ -294,6 +353,11 @@ function endGame() {
 
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
+
+  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
+  successMessage.querySelector('h1').textContent = 'Test Complete!';
+  successMessage.querySelector('p').textContent = 'Solid run. Keep pushing to beat your high score.';
+  setHighScore();
 
   settingsContainer.classList.add('hidden');
 }
@@ -318,3 +382,57 @@ restartButton.addEventListener('click', resetGame);
 // show passage with initially checked difficulty
 const initialDifficulty = Array.from(difficulty.querySelectorAll('input')).filter((i) => i.checked);
 loadPassage(initialDifficulty[0].value);
+
+// set highscore, triggerd by endGame()
+const setHighScore = () => {
+  // set Highscore
+  if (game.highScore < game.wordsPerMinute) {
+    game.highScore = game.wordsPerMinute;
+    localStorage.setItem('high score', game.highScore);
+    updateHighScoreUI(game.highScore);
+
+    // set baseline
+    if (!game.baseline) {
+      return setBaseline();
+    }
+
+    let positionList = [
+      { x: window.innerWidth * 0.5, y: window.innerHeight * 0.75 },
+      { x: window.innerWidth * 0.25, y: window.innerHeight * 0.75 },
+      { x: window.innerWidth * 0.75, y: window.innerHeight * 0.75 },
+    ];
+    for (let i = 0; i < positionList.length; i++) {
+      setTimeout(() => confetti({ position: positionList[i] }), i * 250);
+    }
+
+    document.getElementById('success-icon').src = 'public/assets/images/icon-new-pb.svg';
+    successMessage.querySelector('h1').textContent = 'High Score Smashed!';
+    successMessage.querySelector('p').textContent = 'You’re getting faster. That was incredible typing.';
+    restartButton.querySelector('span').textContent = 'Beat This Score';
+  }
+};
+
+function setBaseline() {
+  game.baseline = true;
+  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
+  successMessage.querySelector('h1').textContent = 'Baseline Established!';
+  successMessage.querySelector('p').textContent = 'You’ve set the bar. Now the real challenge begins—time to beat it.';
+  restartButton.querySelector('span').textContent = 'Beat This Score';
+}
+
+if (localStorage.getItem('high score')) {
+  game.baseline = true;
+  game.highScore = localStorage.getItem('high score');
+  updateHighScoreUI(localStorage.getItem('high score'));
+}
+
+function updateHighScoreUI(highScoreValue) {
+  highScore.textContent = `${highScoreValue} WPM`;
+}
+
+function getCorrectCharCount() {
+  if (game.selectedMode === 'passage') {
+    return game.passage.length - game.errorCounter;
+  }
+  return game.results.filter((r) => r === 'correct').length;
+}

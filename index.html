@@ -7,6 +7,7 @@
     <title>Typing Speed Test</title>
     <link rel="stylesheet" href="public/output.css" />
     <script src="src/js/main.js" defer></script>
+    <script src="public/assets/vendor/confetti.min.js"></script>
   </head>
   <body class="mx-auto max-w-7xl p-4 select-none md:p-8">
     <header>
@@ -19,7 +20,7 @@
           <img src="public/assets/images/icon-personal-best.svg" alt="" class="h-4 md:h-[1.125rem]" />
           <span>
             Personal best:
-            <span id="high-score" class="text-white">92</span>
+            <span id="high-score" class="text-white">– WPM</span>
           </span>
         </span>
       </div>
@@ -142,7 +143,7 @@
       <div id="game-container" class="relative">
         <section
           id="passage"
-          class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] text-neutral-400 opacity-40 blur-[6px]"
+          class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] text-neutral-400 opacity-40 blur-[6px] md:text-[2.5rem]"
         ></section>
 
         <div>
@@ -190,13 +191,14 @@
         <div class="relative mb-6">
           <img src="public/assets/images/pattern-star-2.svg" alt="" class="absolute bottom-0 left-0 w-5 md:w-8" />
           <img
+            id="success-icon"
             src="public/assets/images/icon-completed.svg"
             alt=""
             class="mx-auto h-12 w-12 rounded-full shadow-(--icon-shadow) md:h-16 md:w-16 md:shadow-(--icon-shadow-lg)"
           />
         </div>
 
-        <div class="mb-6 grid gap-y-2.5 text-center leading-[1.2]">
+        <div id="success-message" class="mb-6 grid gap-y-2.5 text-center leading-[1.2]">
           <h1 class="mt-4 text-2xl leading-[1.36] font-bold tracking-[-0.32px] md:text-[2.5rem] md:tracking-[0.4px]">
             Test Complete!
           </h1>
@@ -235,7 +237,7 @@
           id="restart-button"
           class="group mx-auto mt-10 flex cursor-pointer gap-x-2.5 rounded-lg bg-white px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] text-neutral-900 transition duration-300 outline-none hover:opacity-90 focus-visible:shadow-(--focus-shadow-lg)"
         >
-          Go Again
+          <span>Go Again</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" class="fill-neutral-900">
             <path
               d="M1.563 1.281h.949c.246 0 .422.211.422.457l-.07 3.446a8.6 8.6 0 0 1 7.277-3.868c4.816 0 8.718 3.938 8.718 8.72-.035 4.816-3.937 8.683-8.718 8.683a8.86 8.86 0 0 1-5.871-2.215.446.446 0 0 1 0-.633l.703-.703c.14-.14.386-.14.562 0 1.23 1.09 2.813 1.723 4.606 1.723A6.88 6.88 0 0 0 17.03 10c0-3.797-3.093-6.89-6.89-6.89-2.813 0-5.203 1.687-6.293 4.078l4.43-.106c.245 0 .456.176.456.422v.95c0 .245-.21.421-.421.421h-6.75a.406.406 0 0 1-.422-.422v-6.75c0-.21.175-.422.422-.422"
