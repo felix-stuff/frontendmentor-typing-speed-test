@@ -9,6 +9,12 @@
   src: url('assets/fonts/Sora/Sora-VariableFont_wght.ttf') format('truetype');
 }
 
+@layer base {
+  body {
+    font-family: 'Sora', system-ui, sans-serif;
+  }
+}
+
 @theme {
   --focus-shadow: 0 0 0 2px var(--color-neutral-900), 0 0 0 4px var(--color-blue-400);
   --focus-shadow-lg: 0 0 0 3px var(--color-neutral-900), 0 0 0 5px var(--color-blue-400);

@@ -6,7 +6,6 @@ const startButtonContainer = document.getElementById('start-button-container');
 const resetButton = document.getElementById('reset-button');
 const resetButtonContainer = document.getElementById('reset-button-container');
 const restartButton = document.getElementById('restart-button');
-const difficultyToggle = document.getElementById('difficulty');
 const difficulty = document.getElementById('difficulty');
 const wpm = document.getElementById('words-per-minute');
 const finalWpm = document.getElementById('final-words-per-minute');
@@ -23,7 +22,12 @@ const toggleButtons = document.querySelectorAll('.toggle-button');
 const settingsContainer = document.getElementById('settings-container');
 const successMessage = document.getElementById('success-message');
 
+// Listen for user input
+userInput.addEventListener('input', handleInput);
+
+// global game object
 const game = {
+  isRunning: false,
   errorCounter: 0,
   errorMemory: [],
   accuracy: 100,
@@ -45,8 +49,52 @@ const game = {
   results: [],
   highScore: 0,
   currentChar: 0,
-  lastTypedValue: '',
+  typed: '',
   baseline: false,
+};
+
+const SUCCESS_UI_CONFIG = {
+  default: {
+    icon: 'public/assets/images/icon-completed.svg',
+    title: 'Test Complete!',
+    message: 'Solid run. Keep pushing to beat your high score.',
+    iconClasses: [
+      'mx-auto',
+      'h-12',
+      'w-12',
+      'rounded-full',
+      'shadow-(--icon-shadow)',
+      'md:h-16',
+      'md:w-16',
+      'md:shadow-(--icon-shadow-lg)',
+    ],
+    ctaText: 'Restart',
+  },
+
+  baseline: {
+    icon: 'public/assets/images/icon-completed.svg',
+    title: 'Baseline Established!',
+    message: 'You’ve set the bar. Now beat it.',
+    iconClasses: [
+      'mx-auto',
+      'h-12',
+      'w-12',
+      'rounded-full',
+      'shadow-(--icon-shadow)',
+      'md:h-16',
+      'md:w-16',
+      'md:shadow-(--icon-shadow-lg)',
+    ],
+    ctaText: 'Beat This Score',
+  },
+
+  highScore: {
+    icon: 'public/assets/images/icon-new-pb.svg',
+    title: 'High Score Smashed!',
+    message: 'You’re getting faster. That was incredible typing.',
+    iconClasses: ['mx-auto', 'h-16', 'w-16', 'md:h-20', 'md:w-20'],
+    ctaText: 'Beat This Score',
+  },
 };
 
 let lastInteraction = 'mouse';
@@ -112,13 +160,14 @@ const populateDom = (text) => {
 };
 
 const startGame = () => {
+  if (game.isRunning) return;
+  game.isRunning = true;
   userInput.focus();
   clearInterval(timerId);
   game.errorCounter = 0;
   startTimer(game.mode[game.selectedMode].direction, game.mode[game.selectedMode].startTime);
   resetButtonContainer.classList.remove('hidden');
   startButtonContainer.classList.add('hidden');
-  userInput.addEventListener('input', handleInput);
   game.wordsPerMinute = 0;
   passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
   passage.classList.remove('blur-[6px]', 'opacity-40');
@@ -129,12 +178,14 @@ const startGame = () => {
 const resetGame = () => {
   userInput.value = '';
   clearInterval(timerId);
+  game.isRunning = false;
   game.errorCounter = 0;
   time.innerHTML = `0:${String(game.mode[game.selectedMode].startTime).padStart(2, '0')}`;
   game.wordsPerMinute = 0;
   resetButtonContainer.classList.add('hidden');
   startButtonContainer.classList.remove('hidden');
-  game.results = [];
+  game.results = Array(game.passage.length).fill('pending');
+  game.errorMemory = Array(game.passage.length).fill(false);
   game.accuracy = 100;
   accuracy.textContent = '100%';
   populateDom(game.passage);
@@ -145,8 +196,9 @@ const resetGame = () => {
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
   settingsContainer.classList.remove('hidden');
-  game.lastTypedValue = '';
+  game.typed = '';
   game.currentChar = 0;
+  settingsContainer.classList.remove('!hidden');
 };
 
 const startTimer = (direction, startTime) => {
@@ -172,7 +224,7 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 1000);
+  }, 10);
 };
 
 // start game
@@ -182,10 +234,10 @@ passage.addEventListener('click', startGame);
 userInput.addEventListener('keydown', handleKeydown);
 
 function handleInput(e) {
-  const typed = e.target.value;
-  game.lastTypedValue = typed;
+  if (!game.isRunning) return;
 
-  console.log(game.errorCounter);
+  const typed = e.target.value;
+  game.typed = typed;
 
   updateResults(typed);
   updateHighlighting();
@@ -193,7 +245,7 @@ function handleInput(e) {
   calculateWordsPerMinute();
 
   // end game if number of typed chars matches passage
-  if (game.lastTypedValue.length === game.passage.length) {
+  if (game.typed.length === game.passage.length) {
     endGame();
   }
 }
@@ -222,66 +274,6 @@ function updateResults(typed) {
     game.results[i] = newStateAtIndex;
   }
 }
-
-/*function updateResults2(typed) {
-  let prev, curr;
-  let typedIndex = 0;
-
-  prev = game.lastTypedValue;
-  curr = typed;
-
-  console.log('prev', prev);
-  console.log('curr', curr);
-
-  // detect insert character
-  if (prev.length < curr.length) {
-    typedIndex = curr.length - 1;
-  }
-
-  // detect delete character
-  if (prev.length > curr.length) {
-    typedIndex = curr.length;
-    game.results[typedIndex] = 'pending';
-  }
-
-  // detect replace character
-  if (prev.length === curr.length) {
-    if (prev === curr) {
-      typedIndex = -1;
-    } else {
-      let i = 0;
-      while (prev[i] === curr[i]) i++;
-      typedIndex = i;
-    }
-  }
-
-  if (typedIndex === -1) {
-    game.lastTypedValue = curr;
-    return;
-  }
-
-  game.lastTypedValue = curr;
-
-  const prevStateAtIndex = game.results[typedIndex];
-  let newStateAtIndex;
-
-  if (typed[typedIndex] === undefined) {
-    newStateAtIndex = 'pending';
-  } else if (typed[typedIndex] === game.passage[typedIndex]) {
-    newStateAtIndex = 'correct';
-  } else {
-    newStateAtIndex = 'wrong';
-  }
-
-  // count errors - only once per character
-  if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
-    if (game.errorMemory[typedIndex] === false) {
-      game.errorCounter++;
-      game.errorMemory[typedIndex] = true;
-    }
-  }
-  game.results[typedIndex] = newStateAtIndex;
-}*/
 
 function updateAccuracy() {
   const totalChars = game.passage.length;
@@ -338,28 +330,34 @@ function handleKeydown(e) {
 }
 
 function endGame() {
+  if (!game.isRunning) return;
+  game.isRunning = false;
+
   clearInterval(timerId);
   testComplete.classList.remove('hidden');
   finalWpm.textContent = game.wordsPerMinute;
   finalAccuracy.textContent = `${game.accuracy.toFixed(2)}%`;
+  finalAccuracy.classList.remove('text-green-500', 'text-red-500');
+  if (game.accuracy === 100) {
+    finalAccuracy.classList.add('text-green-500');
+  } else {
+    finalAccuracy.classList.add('text-red-500');
+  }
 
   const correctChars = getCorrectCharCount();
   const wrongChars = game.errorCounter;
   finalCorrect.textContent = correctChars;
   finalErrors.textContent = wrongChars;
-  userInput.removeEventListener('input', handleInput);
 
   gameContainer.classList.add('hidden');
 
   time.classList.remove('!text-yellow-400');
   accuracy.classList.remove('!text-red-500');
 
-  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
-  successMessage.querySelector('h1').textContent = 'Test Complete!';
-  successMessage.querySelector('p').textContent = 'Solid run. Keep pushing to beat your high score.';
+  renderSuccessUI('default');
   setHighScore();
 
-  settingsContainer.classList.add('hidden');
+  settingsContainer.classList.add('!hidden');
 }
 
 // select difficulty
@@ -405,19 +403,13 @@ const setHighScore = () => {
       setTimeout(() => confetti({ position: positionList[i] }), i * 250);
     }
 
-    document.getElementById('success-icon').src = 'public/assets/images/icon-new-pb.svg';
-    successMessage.querySelector('h1').textContent = 'High Score Smashed!';
-    successMessage.querySelector('p').textContent = 'You’re getting faster. That was incredible typing.';
-    restartButton.querySelector('span').textContent = 'Beat This Score';
+    renderSuccessUI('highScore');
   }
 };
 
 function setBaseline() {
   game.baseline = true;
-  document.getElementById('success-icon').src = 'public/assets/images/icon-completed.svg';
-  successMessage.querySelector('h1').textContent = 'Baseline Established!';
-  successMessage.querySelector('p').textContent = 'You’ve set the bar. Now the real challenge begins—time to beat it.';
-  restartButton.querySelector('span').textContent = 'Beat This Score';
+  renderSuccessUI('baseline');
 }
 
 if (localStorage.getItem('high score')) {
@@ -431,8 +423,26 @@ function updateHighScoreUI(highScoreValue) {
 }
 
 function getCorrectCharCount() {
-  if (game.selectedMode === 'passage') {
-    return game.passage.length - game.errorCounter;
-  }
   return game.results.filter((r) => r === 'correct').length;
+}
+
+function renderSuccessUI(state) {
+  const config = SUCCESS_UI_CONFIG[state];
+
+  if (!config) return;
+
+  const icon = document.getElementById('success-icon');
+  const title = successMessage.querySelector('h1');
+  const message = successMessage.querySelector('p');
+  const buttonText = restartButton.querySelector('span');
+
+  // reset classes
+  icon.className = '';
+
+  icon.src = config.icon;
+  title.textContent = config.title;
+  message.textContent = config.message;
+  buttonText.textContent = config.ctaText;
+
+  icon.classList.add(...config.iconClasses);
 }
