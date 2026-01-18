@@ -148,11 +148,12 @@
 
     <main>
       <div id="game-container" class="relative">
-        <div class="relative">
-          <section
+        <section class="relative">
+          <h1 class="sr-only">Test your typing speed</h1>
+          <div
             id="passage"
             class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] whitespace-break-spaces text-neutral-400 opacity-40 blur-[6px] md:text-[2.5rem]"
-          ></section>
+          ></div>
 
           <div
             class="pointer-events-none absolute top-0 left-0 h-full w-full rounded-lg transition duration-300 has-focus-visible:shadow-(--focus-shadow-lg)"
@@ -165,7 +166,7 @@
               tabindex="-1"
             />
           </div>
-        </div>
+        </section>
 
         <div
           id="start-button-container"
