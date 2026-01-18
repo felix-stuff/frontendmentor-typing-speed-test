@@ -27,10 +27,6 @@ const successMessage = document.getElementById('success-message');
 userInput.addEventListener('input', handleInput);
 userInput.addEventListener('keydown', handleKeydown);
 
-// Start game
-startButton.addEventListener('click', startGame);
-passage.addEventListener('click', startGame);
-
 // Global variables
 const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
 let timerId = null;
@@ -183,6 +179,10 @@ const startGame = () => {
   time.classList.add('!text-yellow-400');
   accuracy.classList.add('!text-red-500');
 };
+
+// Start game
+startButton.addEventListener('click', startGame);
+passage.addEventListener('click', startGame);
 
 const resetGame = () => {
   userInput.value = '';

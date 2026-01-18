@@ -17,7 +17,12 @@
           <img src="public/assets/images/logo-small.svg" alt="Typing Speed Test" />
         </picture>
         <span class="flex items-center gap-x-2.5 text-neutral-400 md:text-lg">
-          <img src="public/assets/images/icon-personal-best.svg" alt="" class="h-4 md:h-[1.125rem]" />
+          <img
+            src="public/assets/images/icon-personal-best.svg"
+            alt=""
+            aria-hidden="true"
+            class="h-4 md:h-[1.125rem]"
+          />
           <span>
             Personal best:
             <span id="high-score" class="text-white">– WPM</span>
@@ -32,12 +37,16 @@
           class="grid grid-flow-col grid-cols-3 divide-x divide-neutral-700 md:flex md:grid-cols-none md:items-baseline md:gap-x-6 md:pb-1"
         >
           <span
+            aria-live="polite"
+            aria-atomic="true"
             class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
           >
             WPM:
             <strong id="words-per-minute" class="text-2xl leading-none text-white">0</strong>
           </span>
           <span
+            aria-live="polite"
+            aria-atomic="true"
             class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
           >
             Accuracy:
@@ -60,7 +69,7 @@
               class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px] outline-none focus-visible:shadow-(--focus-shadow) md:hidden"
             >
               <span>Difficulty</span>
-              <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+              <img src="public/assets/images/icon-down-arrow.svg" alt="" aria-hidden="true" class="w-2.5" />
             </button>
             <fieldset
               id="difficulty"
@@ -100,7 +109,7 @@
               class="toggle-button flex w-full cursor-pointer justify-center gap-x-2.5 rounded-md border border-neutral-500 px-2.5 py-1.5 text-center leading-[1.2] tracking-[-0.48px] outline-none focus-visible:shadow-(--focus-shadow) md:hidden"
             >
               <span>Mode</span>
-              <img src="public/assets/images/icon-down-arrow.svg" alt="" class="w-2.5" />
+              <img src="public/assets/images/icon-down-arrow.svg" alt="" aria-hidden="true" class="w-2.5" />
             </button>
             <fieldset
               id="mode"
@@ -197,6 +206,7 @@
             id="success-icon"
             src="public/assets/images/icon-completed.svg"
             alt=""
+            aria-hidden="true"
             class="mx-auto h-12 w-12 rounded-full shadow-(--icon-shadow) md:h-16 md:w-16 md:shadow-(--icon-shadow-lg)"
           />
         </div>
@@ -250,6 +260,7 @@
         <img
           src="public/assets/images/pattern-star-1.svg"
           alt=""
+          aria-hidden="true"
           class="md: my-10 mr-4 ml-auto h-10 w-10 md:m-0 md:ml-auto md:h-20 md:w-20"
         />
       </section>
