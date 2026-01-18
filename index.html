@@ -158,7 +158,12 @@
             class="pointer-events-none absolute top-0 left-0 h-full w-full rounded-lg transition duration-300 has-focus-visible:shadow-(--focus-shadow-lg)"
           >
             <label for="user-input" class="sr-only">Type your text here:</label>
-            <input type="text" id="user-input" class="sr-only fixed top-0 left-0 z-1 h-[50vh] w-full" tabindex="-1" />
+            <input
+              type="text"
+              id="user-input"
+              class="fixed top-0 left-0 z-1 h-[50vh] w-full !border-2 !border-red-500 text-transparent"
+              tabindex="-1"
+            />
           </div>
         </div>
 
