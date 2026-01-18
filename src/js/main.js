@@ -22,15 +22,31 @@ const toggleButtons = document.querySelectorAll('.toggle-button');
 const settingsContainer = document.getElementById('settings-container');
 const successMessage = document.getElementById('success-message');
 
+// Event listeners
 // Listen for user input
 userInput.addEventListener('input', handleInput);
+userInput.addEventListener('keydown', handleKeydown);
 
-// global game object
+// Start game
+startButton.addEventListener('click', startGame);
+passage.addEventListener('click', startGame);
+
+// Global variables
+const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
+let timerId = null;
+let lastInteraction = 'mouse';
+
+// Passage mode ends after timeout
+const timeOut = 300;
+
+// Global game object
 const game = {
-  isRunning: false,
+  accuracy: 100,
+  baseline: false,
+  currentChar: 0,
+  difficulty: 'hard',
   errorCounter: 0,
   errorMemory: [],
-  accuracy: 100,
   mode: {
     passage: {
       direction: 1,
@@ -41,18 +57,17 @@ const game = {
       startTime: 60,
     },
   },
-  selectedMode: 'timed',
-  difficulty: 'hard',
-  time: 0,
-  passage: '',
-  wordsPerMinute: 0,
-  results: [],
   highScore: 0,
-  currentChar: 0,
+  isRunning: false,
+  passage: '',
+  results: [],
+  selectedMode: 'timed',
+  time: 0,
   typed: '',
-  baseline: false,
+  wordsPerMinute: 0,
 };
 
+// Success UI variants: test complete, baseline, high score
 const SUCCESS_UI_CONFIG = {
   default: {
     icon: 'public/assets/images/icon-completed.svg',
@@ -97,8 +112,6 @@ const SUCCESS_UI_CONFIG = {
   },
 };
 
-let lastInteraction = 'mouse';
-
 document.addEventListener('pointerdown', (e) => {
   lastInteraction = 'mouse';
 
@@ -107,6 +120,7 @@ document.addEventListener('pointerdown', (e) => {
   });
 });
 
+// Toggle mode dropdowns for mobile design
 const toggleDropdown = (button, e) => {
   const dropdown = button.nextElementSibling;
 
@@ -129,12 +143,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// global variables
-const blockedKeys = ['ArrowLeft', 'ArrowRight', 'Delete'];
-let timerId = null;
-const timeOut = 300;
-
-// fetch passge async
+// Fetch passage async
 const loadPassage = async (difficulty) => {
   const response = await fetch('data.json');
   if (!response.ok) throw new Error('Fetch failed');
@@ -149,7 +158,7 @@ const loadPassage = async (difficulty) => {
   populateDom(game.passage);
 };
 
-// add text to the DOM
+// Add passage to the DOM
 const populateDom = (text) => {
   passage.innerHTML = '';
   text.split('').forEach((letter) => {
@@ -201,6 +210,7 @@ const resetGame = () => {
   settingsContainer.classList.remove('!hidden');
 };
 
+// Start timer depending on selected mode
 const startTimer = (direction, startTime) => {
   game.time = startTime;
 
@@ -224,15 +234,10 @@ const startTimer = (direction, startTime) => {
     } else {
       time.textContent = `0:${String(game.time).padStart(2, '0')}`;
     }
-  }, 10);
+  }, 1000);
 };
 
-// start game
-startButton.addEventListener('click', startGame);
-passage.addEventListener('click', startGame);
-
-userInput.addEventListener('keydown', handleKeydown);
-
+// Main function for user typed input
 function handleInput(e) {
   if (!game.isRunning) return;
 
@@ -244,12 +249,13 @@ function handleInput(e) {
   updateAccuracy();
   calculateWordsPerMinute();
 
-  // end game if number of typed chars matches passage
+  // End game if number of typed chars matches passage
   if (game.typed.length === game.passage.length) {
     endGame();
   }
 }
 
+// Handle state of each character while user types
 function updateResults(typed) {
   for (let i = 0; i < game.passage.length; i++) {
     const prevStateAtIndex = game.results[i];
@@ -263,7 +269,7 @@ function updateResults(typed) {
       newStateAtIndex = 'wrong';
     }
 
-    // count errors - only once per character
+    // Count errors - only once per character
     if (newStateAtIndex === 'wrong' && prevStateAtIndex !== 'wrong') {
       if (game.errorMemory[i] === false) {
         game.errorCounter++;
@@ -279,12 +285,12 @@ function updateAccuracy() {
   const totalChars = game.passage.length;
   const correctChars = totalChars - game.errorCounter;
 
-  // prevent division by zero
+  // Prevent division by zero
   game.accuracy = totalChars === 0 ? 100 : (correctChars / totalChars) * 100;
   accuracy.textContent = `${game.accuracy.toFixed(2)}%`;
 }
 
-// output results to the DOM
+// Output character state to the DOM
 function updateHighlighting() {
   game.currentChar = game.results.indexOf('pending');
 
@@ -323,6 +329,7 @@ function calculateWordsPerMinute() {
   wpm.textContent = game.wordsPerMinute;
 }
 
+// Prevent blocked keys
 function handleKeydown(e) {
   if (blockedKeys.includes(e.key)) {
     e.preventDefault();
@@ -360,28 +367,29 @@ function endGame() {
   settingsContainer.classList.add('!hidden');
 }
 
-// select difficulty
+// Select difficulty
 difficulty.addEventListener('change', (e) => {
   game.difficulty = e.target.value;
   difficulty.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
-// select mode
+// Select mode
 mode.addEventListener('change', (e) => {
   game.selectedMode = e.target.value;
   mode.previousElementSibling.querySelector('span').textContent = e.target.nextElementSibling.innerText;
   resetGame();
 });
 
+// Reset game
 resetButton.addEventListener('click', resetGame);
 restartButton.addEventListener('click', resetGame);
 
-// show passage with initially checked difficulty
+// Load passage with initially checked difficulty
 const initialDifficulty = Array.from(difficulty.querySelectorAll('input')).filter((i) => i.checked);
 loadPassage(initialDifficulty[0].value);
 
-// set highscore, triggerd by endGame()
+// Set highscore, triggerd by end game function
 const setHighScore = () => {
   // set Highscore
   if (game.highScore < game.wordsPerMinute) {
@@ -389,7 +397,7 @@ const setHighScore = () => {
     localStorage.setItem('high score', game.highScore);
     updateHighScoreUI(game.highScore);
 
-    // set baseline
+    // Set baseline
     if (!game.baseline) {
       return setBaseline();
     }
@@ -412,6 +420,7 @@ function setBaseline() {
   renderSuccessUI('baseline');
 }
 
+// Check for initial high score
 if (localStorage.getItem('high score')) {
   game.baseline = true;
   game.highScore = localStorage.getItem('high score');
@@ -436,7 +445,7 @@ function renderSuccessUI(state) {
   const message = successMessage.querySelector('p');
   const buttonText = restartButton.querySelector('span');
 
-  // reset classes
+  // Reset classes
   icon.className = '';
 
   icon.src = config.icon;
