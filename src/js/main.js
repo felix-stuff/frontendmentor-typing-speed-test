@@ -129,7 +129,7 @@ const toggleDropdown = (button, e) => {
 
 document.addEventListener('keydown', (e) => {
   lastInteraction = 'keyboard';
-  if (e.target.matches('button')) {
+  if (e.target.matches('.toggle-button')) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       toggleButtons.forEach((button) => {
@@ -167,6 +167,7 @@ const populateDom = (text) => {
 const startGame = () => {
   if (game.isRunning) return;
   game.isRunning = true;
+  userInput.removeAttribute('tabindex');
   userInput.focus();
   clearInterval(timerId);
   game.errorCounter = 0;
@@ -182,10 +183,14 @@ const startGame = () => {
 
 // Start game
 startButton.addEventListener('click', startGame);
-passage.addEventListener('click', startGame);
+passage.addEventListener('click', (e) => {
+  if (!game.isRunning) startGame();
+  else userInput.focus();
+});
 
 const resetGame = () => {
   userInput.value = '';
+  userInput.setAttribute('tabindex', '-1');
   clearInterval(timerId);
   game.isRunning = false;
   game.errorCounter = 0;
@@ -241,10 +246,9 @@ const startTimer = (direction, startTime) => {
 function handleInput(e) {
   if (!game.isRunning) return;
 
-  const typed = e.target.value;
-  game.typed = typed;
+  game.typed = e.target.value;
 
-  updateResults(typed);
+  updateResults(game.typed);
   updateHighlighting();
   updateAccuracy();
   calculateWordsPerMinute();
@@ -306,8 +310,18 @@ function updateHighlighting() {
       'underline-offset-3',
     );
 
-    if (game.currentChar !== -1) {
-      passage.children[game.currentChar].classList.add('bg-white/20', 'rounded-sm');
+    const pendingIndex = game.currentChar;
+
+    if (pendingIndex !== -1) {
+      passage.children[pendingIndex].classList.add('bg-white/20', 'rounded-sm');
+
+      const el = passage.children[pendingIndex];
+
+      el.scrollIntoView({
+        block: 'center',
+        inline: 'nearest',
+        behavior: 'smooth',
+      });
     }
 
     if (result === 'correct') {
@@ -431,6 +445,7 @@ function updateHighScoreUI(highScoreValue) {
   highScore.textContent = `${highScoreValue} WPM`;
 }
 
+// Correct characters = characters currently typed correctly (not total passage length)
 function getCorrectCharCount() {
   return game.results.filter((r) => r === 'correct').length;
 }

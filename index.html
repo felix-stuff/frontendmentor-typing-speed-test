@@ -3,26 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Test your typing speed and accuracy with this interactive typing speed test. Track WPM, accuracy, and challenge yourself to beat your high score."
+    />
     <link rel="icon" type="image/png" sizes="32x32" href="public/assets/images/favicon-32x32.png" />
     <title>Typing Speed Test</title>
     <link rel="stylesheet" href="public/output.css" />
+    <script src="public/assets/vendor/confetti.min.js" defer></script>
     <script src="src/js/main.js" defer></script>
-    <script src="public/assets/vendor/confetti.min.js"></script>
   </head>
   <body class="mx-auto max-w-7xl p-4 select-none md:p-8">
-    <header class="overflow-auto">
+    <header>
       <div class="mb-8 flex items-center justify-between md:mb-10 xl:mb-16">
         <picture>
           <source srcset="public/assets/images/logo-large.svg" media="(min-width: 48em)" type="image/svg+xml" />
           <img src="public/assets/images/logo-small.svg" alt="Typing Speed Test" />
         </picture>
         <span class="flex items-center gap-x-2.5 text-neutral-400 md:text-lg">
-          <img
-            src="public/assets/images/icon-personal-best.svg"
-            alt=""
-            aria-hidden="true"
-            class="h-4 md:h-[1.125rem]"
-          />
+          <img src="public/assets/images/icon-personal-best.svg" alt="" aria-hidden="true" class="h-4 md:h-4.5" />
           <span>
             Personal best:
             <span id="high-score" class="text-white">– WPM</span>
@@ -37,16 +36,12 @@
           class="grid grid-flow-col grid-cols-3 divide-x divide-neutral-700 md:flex md:grid-cols-none md:items-baseline md:gap-x-6 md:pb-1"
         >
           <span
-            aria-live="polite"
-            aria-atomic="true"
             class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
           >
             WPM:
             <strong id="words-per-minute" class="text-2xl leading-none text-white">0</strong>
           </span>
           <span
-            aria-live="polite"
-            aria-atomic="true"
             class="grid gap-2 text-center leading-[1.2] tracking-[-0.48px] text-neutral-400 md:flex md:items-center md:pr-6 md:text-xl md:tracking-[-0.6px]"
           >
             Accuracy:
@@ -153,24 +148,28 @@
 
     <main>
       <div id="game-container" class="relative">
-        <section
-          id="passage"
-          class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] whitespace-break-spaces text-neutral-400 opacity-40 blur-[6px] md:text-[2.5rem]"
-        ></section>
+        <div class="relative">
+          <section
+            id="passage"
+            class="cursor-pointer text-[2rem] leading-[1.36] tracking-[-0.4px] whitespace-break-spaces text-neutral-400 opacity-40 blur-[6px] md:text-[2.5rem]"
+          ></section>
 
-        <div>
-          <label for="user-input" class="sr-only">Your typed text</label>
-          <input type="text" id="user-input" class="sr-only" />
+          <div
+            class="pointer-events-none absolute top-0 left-0 h-full w-full rounded-lg transition duration-300 has-focus-visible:shadow-(--focus-shadow-lg)"
+          >
+            <label for="user-input" class="sr-only">Type your text here:</label>
+            <input type="text" id="user-input" class="sr-only fixed top-0 left-0 z-1 h-[50vh] w-full" tabindex="-1" />
+          </div>
         </div>
 
         <div
           id="start-button-container"
-          class="absolute top-40 left-[50%] w-full translate-x-[-50%] translate-y-[-50%] text-center md:top-[50%]"
+          class="pointer-events-none absolute top-40 left-[50%] w-full translate-x-[-50%] translate-y-[-50%] text-center md:top-[50%]"
         >
           <button
             type="button"
             id="start-button"
-            class="cursor-pointer rounded-lg bg-blue-600 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 outline-none hover:bg-blue-400 focus-visible:shadow-(--focus-shadow-lg)"
+            class="pointer-events-auto cursor-pointer rounded-lg bg-blue-600 px-6 py-4 text-xl leading-[1.2] font-semibold tracking-[-0.3px] transition duration-300 outline-none hover:bg-blue-400 focus-visible:shadow-(--focus-shadow-lg)"
           >
             Start Typing Test
           </button>
