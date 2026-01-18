@@ -56,7 +56,7 @@ Read more in the [challenge brief](./challenge-brief.md).
 
 ### Links
 
-- Solution URL: [View my solution on Frontend Mentor](https://www.frontendmentor.io/challenges/typing-speed-test)
+- Solution URL: [View my solution on Frontend Mentor](https://www.frontendmentor.io/solutions/typing-speed-test-using-vanilla-js-and-tailwind-css-G0V-gKutnG)
 - Live Site URL: [View my solution Live Site](https://felix-stuff.github.io/frontendmentor-typing-speed-test)
 
 ## My process
